@@ -1,0 +1,259 @@
+﻿{% extends 'base.html' %}
+
+{% block content %}
+<div id="app-carrito" class="container mt-5">
+    <h1>Mi Carrito de Compras</h1>
+
+    <div v-if="loading" class="alert alert-info mt-3">
+        Cargando carrito...
+    </div>
+
+    <div v-if="error" class="alert alert-danger mt-3">
+        Error al cargar el carrito: {{ error }}
+    </div>
+
+    <div v-if="!loading && !error && carrito && carrito.items && carrito.items.length > 0">
+        <table class="table table-hover mt-3">
+            <thead class="thead-light">
+                <tr>
+                    <th scope="col">Producto</th>
+                    <th scope="col">Negocio</th>
+                    <th scope="col" class="text-center">Cantidad</th>
+                    <th scope="col" class="text-right">Precio Unitario</th>
+                    <th scope="col" class="text-right">Subtotal</th>
+                    <th scope="col" class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="item in carrito.items" :key="item.id">
+                    <td v-text="item.producto ? item.producto.nombre : 'Producto Desconocido'"></td>
+                    <td v-text="item.negocio ? item.negocio.nombre : 'N/A'"></td>
+                    <td class="text-center">
+                        <input type="number" v-model.number="item.cantidad" @change="actualizarCantidad(item)" min="1" class="form-control form-control-sm" style="width: 70px; display: inline-block;">
+                    </td>
+                    <td class="text-right" v-text="item.precio_al_agregar !== null && item.precio_al_agregar !== undefined ? '$' + parseFloat(item.precio_al_agregar).toFixed(2) : '$0.00'"></td>
+                    <td class="text-right" v-text="item.subtotal !== null && item.subtotal !== undefined ? '$' + parseFloat(item.subtotal).toFixed(2) : '$0.00'"></td>
+                    <td class="text-center">
+                        <button @click="eliminarItem(item.id)" class="btn btn-danger btn-sm">Eliminar</button>
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="4" class="text-right"><strong>Total del Carrito:</strong></td>
+                    <td class="text-right"><strong v-text="carrito.total_carrito !== null && carrito.total_carrito !== undefined ? '$' + parseFloat(carrito.total_carrito).toFixed(2) : '$0.00'"></strong></td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div class="text-right mt-4">
+            <button @click="procederAlPago" class="btn btn-primary btn-lg" :disabled="creandoPedido">
+                <span v-if="creandoPedido" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                {# Texto del boton corregido para usar v-if/v-else de Vue #}
+                <span v-if="creandoPedido">Procesando...</span>
+                <span v-else>Hacer Pedido</span>
+            </button>
+        </div>
+    </div>
+
+    <div v-if="!loading && !error && (!carrito || !carrito.items || carrito.items.length === 0)" class="alert alert-secondary mt-3">
+        Tu carrito esta vacio. ¡Ve a explorar nuestros productos!
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+<script>
+    // Funcion para obtener el valor de una cookie (para CSRF si es necesario)
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    const appCarrito = new Vue({
+        el: '#app-carrito',
+        data: {
+            carrito: null,
+            loading: true,
+            error: null,
+            token: localStorage.getItem('token'),
+            creandoPedido: false
+        },
+        computed: {
+            apiHeaders() {
+                const headers = {
+                    'Authorization': `Token ${this.token}`,
+                    'Content-Type': 'application/json'
+                };
+                if (csrftoken) {
+                    headers['X-CSRFToken'] = csrftoken;
+                }
+                return headers;
+            }
+        },
+        mounted() {
+            if (!this.token) {
+                this.error = "Debes iniciar sesion para ver tu carrito.";
+                this.loading = false;
+                return;
+            }
+            this.fetchCarrito();
+        },
+        methods: {
+            fetchCarrito() {
+                this.loading = true;
+                this.error = null;
+                fetch('/api/carrito/', {
+                    headers: {
+                        'Authorization': `Token ${this.token}`
+                    }
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json()
+                                .then(errData => {
+                                    const errorMessage = errData.detail || errData.error || JSON.stringify(errData);
+                                    throw new Error(errorMessage || `Error HTTP ${response.status} al obtener el carrito.`);
+                                })
+                                .catch(() => {
+                                    throw new Error(`Error HTTP ${response.status} al obtener el carrito. Respuesta no es JSON.`);
+                                });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        this.carrito = data;
+                        console.log('Carrito cargado:', JSON.parse(JSON.stringify(this.carrito)));
+                        if (this.carrito && this.carrito.items && this.carrito.items.length > 0) {
+                            console.log('Primer item del carrito (para depurar nombres):', JSON.parse(JSON.stringify(this.carrito.items[0])));
+                            if (this.carrito.items[0].producto) {
+                                console.log('Producto del primer item:', JSON.parse(JSON.stringify(this.carrito.items[0].producto)));
+                            }
+                            if (this.carrito.items[0].negocio) {
+                                console.log('Negocio del primer item:', JSON.parse(JSON.stringify(this.carrito.items[0].negocio)));
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error en fetchCarrito:', error);
+                        this.error = error.message;
+                    })
+                    .finally(() => {
+                        this.loading = false;
+                    });
+            },
+            actualizarCantidad(item) {
+                console.log('Actualizar cantidad para item ID:', item.id, 'a nueva cantidad:', item.cantidad);
+                if (!item || typeof item.cantidad !== 'number' || item.cantidad < 1) {
+                    alert("La cantidad debe ser al menos 1.");
+                    this.fetchCarrito();
+                    return;
+                }
+
+                fetch(`/api/carrito-items/${item.id}/`, {
+                    method: 'PATCH',
+                    headers: this.apiHeaders,
+                    body: JSON.stringify({ cantidad: item.cantidad })
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(errData => {
+                                const msg = errData.detail || errData.cantidad || JSON.stringify(errData);
+                                throw new Error(msg || `Error ${response.status}`);
+                            }).catch(() => { throw new Error(`Error ${response.status} actualizando cantidad.`); });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Cantidad actualizada en backend:', data);
+                        this.fetchCarrito();
+                    })
+                    .catch(error => {
+                        console.error("Error actualizando cantidad:", error);
+                        alert(`Error actualizando cantidad: ${error.message}`);
+                        this.fetchCarrito();
+                    });
+            },
+            eliminarItem(itemId) {
+                console.log('Intentando eliminar item ID:', itemId);
+                if (!confirm("¿Estas seguro de que quieres eliminar este producto del carrito?")) {
+                    return;
+                }
+                fetch(`/api/carrito-items/${itemId}/`, {
+                    method: 'DELETE',
+                    headers: this.apiHeaders
+                })
+                    .then(response => {
+                        if (response.status === 204) {
+                            console.log('Item eliminado exitosamente del backend.');
+                            this.fetchCarrito();
+                        } else if (!response.ok) {
+                            return response.json().then(errData => {
+                                throw new Error(errData.detail || JSON.stringify(errData) || `Error ${response.status}`);
+                            }).catch(() => { throw new Error(`Error ${response.status} eliminando item.`); });
+                        } else {
+                            console.warn("Respuesta inesperada al eliminar item:", response);
+                            this.fetchCarrito();
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error eliminando item:", error);
+                        alert(`Error al eliminar el producto del carrito: ${error.message}`);
+                    });
+            },
+            procederAlPago() {
+                if (!this.carrito || !this.carrito.items || this.carrito.items.length === 0) {
+                    alert("Tu carrito esta vacio.");
+                    return;
+                }
+                if (!confirm("¿Estas seguro de que quieres finalizar tu pedido?")) {
+                    return;
+                }
+                this.creandoPedido = true;
+                fetch('/api/pedidos/crear/', {
+                    method: 'POST',
+                    headers: this.apiHeaders,
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json()
+                                .then(errData => {
+                                    const errorMessage = errData.detail || errData.error || JSON.stringify(errData);
+                                    throw new Error(errorMessage || `Error del servidor: ${response.status}`);
+                                })
+                                .catch(() => {
+                                    throw new Error(`Error del servidor: ${response.status}. Respuesta no es JSON.`);
+                                });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Pedido creado:', data);
+                        alert('¡Pedido realizado exitosamente! Tu carrito ha sido vaciado.');
+                        this.fetchCarrito();
+                    })
+                    .catch(error => {
+                        console.error('Error al crear el pedido:', error);
+                        alert(`Error al realizar el pedido: ${error.message}`);
+                    })
+                    .finally(() => {
+                        this.creandoPedido = false;
+                    });
+            }
+        }
+    });
+</script>
+{% endblock %}

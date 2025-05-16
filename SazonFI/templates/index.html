@@ -1,0 +1,122 @@
+﻿{% extends 'base.html' %}
+
+{% block content %}
+<div id="app-index-negocios">
+    {# ID unico para esta instancia de Vue #}
+    <h1>Bienvenido a SazonFI</h1>
+    <p class="lead">Explora los negocios disponibles y descubre sus productos.</p>
+    <hr>
+
+    <div class="container mt-4">
+        <h2>Negocios Disponibles</h2>
+        <div v-if="loading" class="alert alert-info">Cargando negocios...</div>
+        <div v-if="error" class="alert alert-danger">Error al cargar negocios: {{ error }}</div>
+
+        <div class="row" v-if="!loading && negocios.length > 0">
+            <div class="col-md-4 mb-4" v-for="negocio in negocios" :key="negocio.id">
+                <div class="card h-100">
+                    <img :src="negocio.logo_url"
+                         class="card-img-top"
+                         :alt="'Logo de ' + (negocio.nombre || 'Negocio')"
+                         style="height: 180px; object-fit: cover; border: 1px solid #ddd; background-color: #f8f9fa;"
+                         @error="handleImageError($event, negocio.nombre)">
+
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title" v-text="negocio.nombre"></h5>
+                        <p class="card-text" v-text="negocio.descripcion"></p>
+                        <button @click="verProductos(negocio.id)" class="btn btn-primary mt-auto">Ver Productos</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div v-if="!loading && !error && negocios.length === 0" class="alert alert-warning">
+            No hay negocios disponibles en este momento.
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+<script>
+    const appIndexNegocios = new Vue({
+        el: '#app-index-negocios', // ID actualizado para esta pagina
+        data: {
+            negocios: [],
+            loading: true,
+            error: null,
+        },
+        mounted() {
+            this.fetchNegocios();
+        },
+        methods: {
+            fetchNegocios() {
+                this.loading = true;
+                this.error = null;
+                fetch('/api/negocios/') // API para obtener todos los negocios
+                    .then(response => {
+                        if (!response.ok) {
+                            // Intentar obtener mas detalles del error si es posible
+                            return response.json().then(errData => {
+                                throw new Error(errData.detail || JSON.stringify(errData) || `Error HTTP ${response.status}`);
+                            }).catch(() => {
+                                throw new Error(`Error HTTP ${response.status} al cargar negocios.`);
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log("Negocios recibidos de la API (index.html):", JSON.parse(JSON.stringify(data)));
+                        let processedNegocios = [];
+                        // Comprobar si la data es un array directamente o un objeto con una propiedad 'results' (comun en DRF con paginacion)
+                        if (Array.isArray(data)) {
+                            processedNegocios = data;
+                        } else if (data && Array.isArray(data.results)) {
+                            processedNegocios = data.results;
+                        } else {
+                            // Si la estructura no es reconocida, se loguea una advertencia.
+                            console.warn("Estructura de respuesta de /api/negocios/ no reconocida o vacia (index.html).");
+                        }
+
+                        // Asegurarse de que logo_url siempre tenga un valor para la plantilla
+                        this.negocios = processedNegocios.map(n => ({
+                            ...n,
+                            // Si logo_url es null o undefined desde la API (lo cual no deberia pasar si el modelo lo maneja),
+                            // aqui se asignaria el placeholder. Pero el modelo ya deberia dar el placeholder.
+                            logo_url: n.logo_url || 'https://placehold.co/300x180/EFEFEF/AAAAAA?text=Sin+Logo'
+                        }));
+
+                        if (this.negocios.length > 0) {
+                            console.log("Primer negocio procesado (index.html):", this.negocios[0]);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error en fetchNegocios (index.html):', error);
+                        this.error = error.message;
+                    })
+                    .finally(() => {
+                        this.loading = false;
+                    });
+            },
+            verProductos(negocioId) {
+                // Redirige a la pagina de productos del negocio seleccionado
+                window.location.href = `/negocios/${negocioId}/productos/`;
+            },
+            handleImageError(event, negocioNombre) {
+                // Este metodo se llama si una imagen (incluyendo el placeholder inicial) no se puede cargar
+                console.warn(`Error al cargar imagen para '${negocioNombre}' desde: ${event.target.src} (index.html). Usando placeholder neutral.`);
+
+                // Cambiar al placeholder neutral que ya usas por defecto en el modelo o en el mapeo.
+                const placeholderNeutral = 'https://placehold.co/300x180/EFEFEF/AAAAAA?text=Logo+No+Disponible';
+
+                // Solo cambiar si no es ya el placeholder neutral para evitar bucles
+                if (event.target.src !== placeholderNeutral) {
+                    event.target.src = placeholderNeutral;
+                }
+                // Quitar el manejador de error para el placeholder alternativo para evitar bucles si tambien falla
+                event.target.onerror = null;
+            }
+        }
+    });
+</script>
+{% endblock %}

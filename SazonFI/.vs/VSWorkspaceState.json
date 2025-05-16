@@ -1,0 +1,16 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\media",
+    "\\media\\productos",
+    "\\SazonFI",
+    "\\templates",
+    "\\templates\\productos",
+    "\\usuarios",
+    "\\usuarios\\migrations",
+    "\\usuarios\\templates",
+    "\\usuarios\\templates\\usuarios"
+  ],
+  "SelectedNode": "\\SazonFI\\settings.py",
+  "PreviewInSolutionExplorer": false
+}

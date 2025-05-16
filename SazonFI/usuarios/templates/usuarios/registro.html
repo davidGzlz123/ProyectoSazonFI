@@ -1,0 +1,79 @@
+﻿{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="text-center">Registro</h2>
+                <form id="registro-form">
+                    {% csrf_token %}  <div class="form-group">
+                        <label for="username">Usuario</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Contraseña</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="rol">Rol</label>
+                        <select class="form-control" id="rol" name="rol" required>
+                            <option value="cliente">Cliente</option>
+                            <option value="negocio">Negocio</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Registrarse</button>
+                </form>
+                <p class="text-center mt-3">
+                    ¿Ya tienes una cuenta? <a href="/login/">Inicia sesión</a>
+                </p>
+                <div id="error-message" class="alert alert-danger mt-3" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const registroForm = document.getElementById('registro-form');
+    const errorMessage = document.getElementById('error-message');
+
+    registroForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const username = registroForm.username.value;
+        const email = registroForm.email.value;
+        const password = registroForm.password.value;
+        const rol = registroForm.rol.value;
+
+        fetch('/api/registro/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({ username: username, email: email, password: password, rol: rol })
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Respuesta del backend:", data);
+                if (data.message) {
+                    window.location.href = '/login/';
+                } else {
+                    errorMessage.textContent = data.error || 'Error al registrarse';
+                    errorMessage.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                errorMessage.textContent = 'Error al registrarse';
+                errorMessage.style.display = 'block';
+            });
+    });
+</script>
+{% endblock %}

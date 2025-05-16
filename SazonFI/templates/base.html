@@ -1,0 +1,92 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SazonFI</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="{% url 'index' %}">SazonFI</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="{% url 'index' %}">Inicio</a>
+                </li>
+                {# ENLACE AL CARRITO - CORREGIDO #}
+                <li class="nav-item" id="carrito-link" style="display: none;">
+                    <a class="nav-link" href="{% url 'carritos:ver_carrito' %}">Mi Carrito</a>
+                </li>
+                <li class="nav-item" id="login-link">
+                    <a class="nav-link" href="{% url 'login' %}">Login</a>
+                </li>
+                <li class="nav-item" id="registro-link">
+                    <a class="nav-link" href="{% url 'registro' %}">Registro</a>
+                </li>
+                <li class="nav-item" id="logout-link" style="display: none;">
+                    <a class="nav-link" href="#" onclick="logout()">Cerrar Sesion</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <footer class="mt-5 bg-light text-center py-3">
+        <p>&copy; 2025 SazonFI</p>
+    </footer>
+
+    <script>
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('rol');
+            checkAuthentication();
+            window.location.href = "{% url 'index' %}";
+        }
+
+        function checkAuthentication() {
+            const token = localStorage.getItem('token');
+            const rol = localStorage.getItem('rol');
+
+            const loginLink = document.getElementById('login-link');
+            const registroLink = document.getElementById('registro-link');
+            const logoutLink = document.getElementById('logout-link');
+            const carritoLink = document.getElementById('carrito-link');
+
+            if (token) {
+                if (loginLink) loginLink.style.display = 'none';
+                if (registroLink) registroLink.style.display = 'none';
+                if (logoutLink) logoutLink.style.display = 'block';
+
+                if (rol === 'cliente' && carritoLink) {
+                    carritoLink.style.display = 'block';
+                } else if (carritoLink) {
+                    carritoLink.style.display = 'none';
+                }
+
+            } else {
+                if (loginLink) loginLink.style.display = 'block';
+                if (registroLink) registroLink.style.display = 'block';
+                if (logoutLink) logoutLink.style.display = 'none';
+                if (carritoLink) carritoLink.style.display = 'none';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            checkAuthentication();
+        });
+    </script>
+    {% block scripts %}
+    {% endblock %}
+</body>
+</html>

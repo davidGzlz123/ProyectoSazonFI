@@ -1,0 +1,183 @@
+﻿{% extends 'base.html' %}
+
+{% block content %}
+<div id="app-productos">
+    {# El H1 toma el nombre del negocio del contexto de Django directamente #}
+    <h1>Productos de: {{ nombre_negocio }}</h1>
+
+    <div class="container mt-4">
+        <div v-if="loading" class="alert alert-info">
+            Cargando productos...
+        </div>
+        <div v-if="errorApi" class="alert alert-danger">
+            Error al cargar los productos: <span v-text="errorApi"></span>
+        </div>
+
+        <div class="row" v-if="productos.length > 0">
+            <div class="col-md-4 mb-4" v-for="producto in productos" :key="producto.id">
+                <div class="card h-100">
+                    {# h-100 para igualar altura de tarjetas #}
+                    {# --- MOSTRAR IMAGEN DEL PRODUCTO --- #}
+                    <img :src="producto.imagen_url"
+                         class="card-img-top"
+                         :alt="'Imagen de ' + producto.nombre"
+                         style="height: 200px; object-fit: cover;"
+                         onerror="this.onerror=null; this.src='https://placehold.co/300x200/EFEFEF/AAAAAA?text=Imagen+No+Disponible';">
+
+                    <div class="card-body d-flex flex-column">
+                        {# d-flex y flex-column para empujar boton abajo #}
+                        <h5 class="card-title" v-text="producto.nombre"></h5>
+                        <p class="card-text" v-text="producto.descripcion"></p>
+                        <p class="card-text"><strong>Precio:</strong> <span v-text="producto.precio ? '$' + parseFloat(producto.precio).toFixed(2) : 'N/A'"></span></p>
+                        <button type="button" @click="agregarAlCarrito(producto)" class="btn btn-success mt-auto">Agregar al Carrito</button> {# mt-auto para empujar al fondo #}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div v-if="!loading && !errorApi && productos.length === 0" class="alert alert-warning">
+            No hay productos disponibles para este negocio en este momento.
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+<script>
+    let negocioIdDesdeDjango;
+    try {
+        const idValue = {{ id_negocio_para_js|safe|default:'null' }};
+        if (idValue !== null && !isNaN(parseInt(idValue, 10))) {
+            negocioIdDesdeDjango = parseInt(idValue, 10);
+        } else {
+            negocioIdDesdeDjango = null;
+        }
+        console.log('ID del Negocio (desde Django para JS):', negocioIdDesdeDjango);
+    } catch (e) {
+        console.error('Error al obtener negocioIdDesdeDjango del template:', e);
+        negocioIdDesdeDjango = null;
+    }
+
+    const appProductos = new Vue({
+        el: '#app-productos',
+        data: {
+            productos: [],
+            loading: true,
+            errorApi: null,
+            negocioId: negocioIdDesdeDjango,
+            token: localStorage.getItem('token')
+        },
+        mounted() {
+            console.log('appProductos mounted. ID del Negocio en data:', this.negocioId);
+            if (typeof this.negocioId === 'number' && this.negocioId > 0) {
+                this.fetchProductos(this.negocioId);
+            } else {
+                const errorMessage = 'ID del negocio no definido o invalido. No se pueden cargar productos.';
+                console.error(errorMessage, 'Valor recibido de Django:', negocioIdDesdeDjango);
+                this.errorApi = errorMessage;
+                this.loading = false;
+            }
+        },
+        methods: {
+            fetchProductos(id) {
+                this.loading = true;
+                this.errorApi = null;
+                // La API para obtener productos de un negocio especifico
+                // Esta API debe devolver 'imagen_url' para cada producto.
+                fetch(`/api/negocios/${id}/productos/`, {
+                    headers: {
+                        // 'Authorization': `Token ${this.token}` // Solo si es necesario para VER productos
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(errData => {
+                            throw new Error(errData.detail || JSON.stringify(errData) || `Error HTTP ${response.status}`);
+                        }).catch(() => { throw new Error(`Error HTTP ${response.status} al obtener productos.`); });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Respuesta de API para productos:', JSON.parse(JSON.stringify(data)));
+                    // Ajustar segun la estructura de tu API de productos por negocio
+                    if (Array.isArray(data)) {
+                        this.productos = data;
+                    } else if (data && Array.isArray(data.productos)) { // Si la API devuelve {"productos": [...]}
+                        this.productos = data.productos;
+                    } else if (data && Array.isArray(data.results)) { // Comun con paginacion DRF
+                        this.productos = data.results;
+                    } else {
+                        this.productos = [];
+                        console.warn("Estructura de respuesta de productos no reconocida o vacia.");
+                    }
+                    // Verificar si los productos tienen imagen_url
+                    if (this.productos.length > 0) {
+                        console.log("Primer producto recibido (para verificar imagen_url):", this.productos[0]);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error en fetchProductos:', error);
+                    this.errorApi = error.message;
+                })
+                .finally(() => {
+                    this.loading = false;
+                });
+            },
+            agregarAlCarrito(producto) {
+                const rol = localStorage.getItem('rol');
+
+                if (!this.token || rol !== 'cliente') {
+                    alert('Favor de iniciar sesion como cliente para agregar productos al carrito.');
+                    return;
+                }
+
+                if (typeof this.negocioId !== 'number' || this.negocioId <= 0) {
+                    console.error('Error critico: ID del negocio no disponible en agregarAlCarrito.', this.negocioId);
+                    alert('Error: No se pudo identificar el negocio para este producto. Por favor, recarga la pagina.');
+                    return;
+                }
+
+                console.log('Agregando al carrito. Producto ID:', producto.id, 'ID del Negocio:', this.negocioId);
+
+                const datosParaElCarrito = {
+                    producto_id: producto.id,
+                    cantidad: 1,
+                    negocio_id: this.negocioId
+                };
+
+                fetch('/api/carrito/agregar/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Token ${this.token}`
+                        // Si usas CSRF con sesiones para tu API:
+                        // 'X-CSRFToken': getCookie('csrftoken') // Necesitarias la funcion getCookie
+                    },
+                    body: JSON.stringify(datosParaElCarrito)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json()
+                            .then(errData => {
+                                const errorMessage = errData.detail || errData.error || JSON.stringify(errData);
+                                throw new Error(errorMessage || `Error del servidor: ${response.status}`);
+                            })
+                            .catch(() => {
+                                throw new Error(`Error del servidor: ${response.status}. Respuesta no es JSON.`);
+                            });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Respuesta del servidor (carrito):', data);
+                    alert('¡Producto agregado al carrito exitosamente!');
+                })
+                .catch(error => {
+                    console.error('Error al agregar al carrito:', error);
+                    alert(`Error al agregar al carrito: ${error.message}`);
+                });
+            }
+        }
+    });
+</script>
+{% endblock %}

@@ -10,33 +10,41 @@
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light navbar-custom">
-        <a class="navbar-brand" href="{% url 'index' %}">
-            <img src="{{ MEDIA_URL }}principal/logo.png" alt="Logo-SazonFI" width="220" height="150" class="d-inline-block align-top">
-        </a>
-        <!-- <a class="navbar-brand" href="{% url 'index' %}">SazonFI</a> -->
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="{% url 'index' %}">Inicio</a>
-                </li>
-                {# ENLACE AL CARRITO - CORREGIDO #}
-                <li class="nav-item" id="carrito-link" style="display: none;">
-                    <a class="nav-link" href="{% url 'carritos:ver_carrito' %}">Mi Carrito</a>
-                </li>
-                <li class="nav-item" id="login-link">
-                    <a class="nav-link" href="{% url 'login' %}">Login</a>
-                </li>
-                <li class="nav-item" id="registro-link">
-                    <a class="nav-link" href="{% url 'registro' %}">Registro</a>
-                </li>
-                <li class="nav-item" id="logout-link" style="display: none;">
-                    <a class="nav-link" href="#" onclick="logout()">Cerrar Sesion</a>
-                </li>
-            </ul>
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'index' %}">
+                <img src="{{ MEDIA_URL }}principal/logo.png" alt="Logo-SazonFI" width="220" height="150" class="d-inline-block align-top">
+            </a>
+            <!-- <a class="navbar-brand" href="{% url 'index' %}">SazonFI</a> -->
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav w-100 align-items-center">
+                    {# ENLACE AL CARRITO - CORREGIDO #}
+                    <li class="nav-item" id="carrito-link" style="display: none;">
+                        <a class="nav-link" href="{% url 'carritos:ver_carrito' %}">Mi Carrito</a>
+                    </li>
+                    <!-- Barra de búsqueda -->
+                    <li class="nav-item mx-auto" id="search-bar">
+                        <form action="/buscar" method="get" class="search-bar">
+                                <!-- Icono de lupa -->
+                                <img src="{{ MEDIA_URL }}principal/search.png" alt="search-icon" class="search-icon">
+                            <input type="search" name="q" class="search-input" placeholder="Buscar comida ..." aria-label="Buscar comida">
+                        </form>
+                    </li>
+                    <!-- Login/Registro -->
+                    <li class="nav-item" id="login-link">
+                        <a class="nav-link login-btn" href="{% url 'login' %}" style="color: #D9D9D9; font-size: 25px;">
+                            <img src="{{ MEDIA_URL }}principal/login.png" alt="Login-Icon" width="40" height="40">
+                            Ingresa o Regístrate
+                        </a>
+                    </li>
+                    <li class="nav-item" id="logout-link" style="display: none;">
+                        <a class="nav-link" href="#" onclick="logout()">Cerrar Sesion</a>
+                    </li>
+                </ul>
+            </div>
         </div>
     </nav>
 
@@ -45,7 +53,7 @@
         {% endblock %}
     </div>
 
-    <footer class="mt-5 bg-light text-center py-3">
+    <footer class="mt-5 text-center py-3">
         <p>&copy; 2025 SazonFI</p>
     </footer>
 

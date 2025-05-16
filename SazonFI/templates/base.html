@@ -9,8 +9,11 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="{% url 'index' %}">SazonFI</a>
+    <nav class="navbar navbar-expand-lg navbar-light navbar-custom">
+        <a class="navbar-brand" href="{% url 'index' %}">
+            <img src="{{ MEDIA_URL }}principal/logo.png" alt="Logo-SazonFI" width="220" height="150" class="d-inline-block align-top">
+        </a>
+        <!-- <a class="navbar-brand" href="{% url 'index' %}">SazonFI</a> -->
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>

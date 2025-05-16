@@ -70,6 +70,7 @@ TEMPLATES = [ # Asegurate de tener esto configurado correctamente
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.media',
             ],
         },
     },
@@ -112,7 +113,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'es-mx' # Cambiado a español de Mexico como ejemplo
+LANGUAGE_CODE = 'es-mx' # Cambiado a espaï¿½ol de Mexico como ejemplo
 TIME_ZONE = 'America/Mexico_City' # Cambiado a una zona horaria de Mexico
 
 USE_I18N = True

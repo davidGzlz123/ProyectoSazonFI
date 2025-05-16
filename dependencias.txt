@@ -1,0 +1,27 @@
+Versión de Python empleada: 3.13.3
+Verificación de la versión instalada [En terminal]: 
+> python --version
+
+
+* Django y Django REST Framework son los frameworks principales que utilizamos. Pueden instalarlos usando pip (el gestor de paquetes de Python) dentro de la raíz del proyecto:
+
+> pip install Django
+> pip install djangorestframework
+> pip install djangorestframework.authtoken  
+> pip install rest_framework_nested
+
+
+* Comandos de Django (manage.py)
+> python manage.py startproject <nombre_del_proyecto>: Crea un nuevo proyecto Django.
+> python manage.py startapp <nombre_de_la_aplicacion>: Crea una nueva aplicación Django dentro de un proyecto.
+> python manage.py runserver: Inicia el servidor de desarrollo de Django.
+> python manage.py makemigrations: Crea nuevas migraciones basadas en los cambios en los modelos.
+> python manage.py migrate: Aplica las migraciones pendientes a la base de datos.
+> python manage.py createsuperuser: Crea un superusuario para acceder al panel de administración de Django.
+> python manage.py shell: Abre el shell interactivo de Django para interactuar con los modelos.
+> python manage.py show_urls: Muestra todas las URLs configuradas en el proyecto.
+> python manage.py runserver: Ejecuta el servidor Django
+
+
+Link de Miro: 
+https://miro.com/welcome/ZHVQancyTkNRTlFiVnBEY3ZDaXVjZVh5ek1ScWtNdStXbkpSeTRGTWxlMjdYZkFPeUd4U3JTV3NXT0o3UXZna2pZeVVzQUMraUxPRWt3RDVRYTR5QkE0UWluT1RNR2NWYzhtZjUrT2V1d0o5bDNLbHlCWXh2djZVaXRhNk4zeXphWWluRVAxeXRuUUgwWDl3Mk1qRGVRPT0hdjE=?share_link_id=284047770337

@@ -1,0 +1,520 @@
+﻿{% extends 'base.html' %}
+
+{% block content %}
+<div id="app-negocio" class="container mt-4">
+    <h1>Panel de Administracion de Negocios</h1>
+    <hr>
+
+    <ul class="nav nav-tabs mb-3" id="panelNegocioTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" :class="{ active: activeTab === 'lista' }" @click.prevent="selectTab('lista')" id="lista-tab" data-toggle="tab" href="#lista" role="tab" aria-controls="lista" aria-selected="true">Mis Negocios y Productos</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" :class="{ active: activeTab === 'formularioNegocio' }" @click.prevent="selectTab('formularioNegocio')" id="form-negocio-tab" data-toggle="tab" href="#formularioNegocio" role="tab" aria-controls="formularioNegocio" aria-selected="false">
+                <span v-if="modoFormularioNegocio === 'crear'">Crear Negocio</span>
+                <span v-else>Editar Negocio</span>
+            </a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" :class="{ active: activeTab === 'pedidos' }" @click.prevent="selectTab('pedidos')" id="pedidos-tab" data-toggle="tab" href="#pedidos" role="tab" aria-controls="pedidos" aria-selected="false">Pedidos</a>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="panelNegocioTabsContent">
+        <div class="tab-pane fade" :class="{ 'show active': activeTab === 'lista' }" id="lista" role="tabpanel" aria-labelledby="lista-tab">
+            <h2>Mis Negocios</h2>
+            <button class="btn btn-success mb-3" @click="irACrearNegocio">
+                <i class="fas fa-plus"></i> Crear Nuevo Negocio
+            </button>
+
+            <div v-if="loadingNegocios" class="alert alert-info">Cargando negocios...</div>
+            <div v-if="!loadingNegocios && negociosUsuario.length === 0 && !apiError" class="alert alert-warning">
+                No tienes negocios registrados. ¡Crea uno!
+            </div>
+
+            <div v-if="!loadingNegocios && negociosUsuario.length > 0" class="form-group">
+                <label for="selectNegocio">Seleccionar Negocio para Administrar:</label>
+                <select class="form-control" id="selectNegocio" v-model="negocioSeleccionadoId" @change="cargarProductosDelNegocioSeleccionado">
+                    <option :value="null">Seleccione un negocio</option>
+                    <option v-for="negocio in negociosUsuario" :key="negocio.id" :value="negocio.id">
+                        <img :src="negocio.logo_url" alt="" style="width: 20px; height: 20px; margin-right: 5px; border-radius: 3px; object-fit: cover;" v-if="negocio.logo_url" @error="setDefaultLogo($event)">
+                        <span v-text="negocio.nombre"></span>
+                    </option>
+                </select>
+                <button type="button" class="btn btn-sm btn-outline-primary mt-2" 
+                        v-if="negocioActual" @click="irAEditarNegocio(negocioActual)">
+                    Editar Negocio Seleccionado (<span v-text="negocioActual.nombre"></span>)
+                </button>
+            </div>
+
+            <div v-if="negocioSeleccionadoId && negocioActual">
+                <hr>
+                <h3>Productos de: <span v-text="negocioActual.nombre"></span></h3>
+                <button class="btn btn-success mb-3" @click="abrirModalProducto(null)">
+                    <i class="fas fa-plus"></i> Agregar Nuevo Producto
+                </button>
+
+                <div v-if="loadingProductos" class="alert alert-info">Cargando productos...</div>
+                <div v-if="!loadingProductos && productosNegocioSeleccionado.length === 0 && !apiErrorProductos" class="alert alert-info">
+                    Este negocio aun no tiene productos registrados.
+                </div>
+
+                <table class="table table-striped" v-if="!loadingProductos && productosNegocioSeleccionado.length > 0">
+                    <thead>
+                        <tr>
+                            <th>Imagen</th>
+                            <th>Nombre</th>
+                            <th>Precio</th>
+                            <th>Stock</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="producto in productosNegocioSeleccionado" :key="producto.id">
+                            <td><img :src="producto.imagen_url" :alt="producto.nombre" style="width: 50px; height: 50px; object-fit: cover; border:1px solid #ddd; background-color: #f8f9fa;" @error="setDefaultImagenProducto($event)"></td>
+                            <td v-text="producto.nombre"></td>
+                            <td v-text="producto.precio ? '$' + parseFloat(producto.precio).toFixed(2) : 'N/A'"></td>
+                            <td v-text="producto.stock"></td>
+                            <td>
+                                <button class="btn btn-sm btn-primary mr-2" @click="abrirModalProducto(producto)">Editar</button>
+                                <button class="btn btn-sm btn-danger" @click="eliminarProducto(producto.id, producto.nombre)">Eliminar</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" :class="{ 'show active': activeTab === 'formularioNegocio' }" id="formularioNegocio" role="tabpanel" aria-labelledby="form-negocio-tab">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 v-if="modoFormularioNegocio === 'crear'">Crear Nuevo Negocio</h3>
+                    <h3 v-if="modoFormularioNegocio === 'editar'">Editando Negocio: <span v-text="negocioEnEdicion.nombreOriginal || negocioEnEdicion.nombre"></span></h3>
+                </div>
+                <div class="card-body">
+                    <form @submit.prevent="guardarNegocio">
+                        <div class="form-group">
+                            <label for="nombreNegocioForm">Nombre del Negocio</label>
+                            <input type="text" class="form-control" id="nombreNegocioForm" v-model="negocioEnEdicion.nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="descripcionNegocioForm">Descripcion</label>
+                            <textarea class="form-control" id="descripcionNegocioForm" v-model="negocioEnEdicion.descripcion" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="direccionNegocioForm">Direccion (Opcional)</label>
+                            <input type="text" class="form-control" id="direccionNegocioForm" v-model="negocioEnEdicion.direccion">
+                        </div>
+                        <div class="form-group">
+                            <label for="logoNegocioForm">Logo del Negocio</label>
+                            <input type="file" class="form-control-file" id="logoNegocioForm" @change="handleLogoUpload" accept="image/*">
+                            <small class="form-text text-muted">Selecciona una imagen para el logo.</small>
+                            <div v-if="logoPreviewUrl" class="mt-2">
+                                <p>Vista previa del logo:</p>
+                                <img :src="logoPreviewUrl" alt="Vista previa del logo" style="max-height: 100px; border: 1px solid #ddd;">
+                            </div>
+                            <div v-else-if="modoFormularioNegocio === 'editar' && negocioEnEdicion.logo_url && !logoFile" class="mt-2">
+                                 <p>Logo actual:</p>
+                                <img :src="negocioEnEdicion.logo_url" alt="Logo actual" style="max-height: 100px; border: 1px solid #ddd;">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <span v-if="modoFormularioNegocio === 'crear'">Crear Negocio</span>
+                            <span v-else>Guardar Cambios</span>
+                        </button>
+                        <button type="button" class="btn btn-secondary ml-2" @click="cancelarFormularioNegocio">Cancelar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" :class="{ 'show active': activeTab === 'pedidos' }" id="pedidos" role="tabpanel" aria-labelledby="pedidos-tab">
+            <h2>Pedidos Recibidos</h2>
+            <p class="alert alert-info">Esta seccion se implementara mas adelante para mostrar y gestionar los pedidos de tus negocios.</p>
+            </div>
+    </div>
+
+    <div class="modal fade" id="modalProducto" tabindex="-1" role="dialog" aria-labelledby="modalProductoLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form @submit.prevent="guardarProducto">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalProductoLabel">
+                            <span v-if="modoFormularioProducto === 'crear'">Agregar Nuevo Producto</span>
+                            <span v-else>Editar Producto: {{ productoEnEdicion.nombreOriginal }}</span>
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="cerrarModalProducto">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="nombreProducto">Nombre</label>
+                            <input type="text" class="form-control" id="nombreProducto" v-model="productoEnEdicion.nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="descripcionProducto">Descripcion</label>
+                            <textarea class="form-control" id="descripcionProducto" v-model="productoEnEdicion.descripcion" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="precioProducto">Precio</label>
+                            <input type="number" step="0.01" class="form-control" id="precioProducto" v-model.number="productoEnEdicion.precio" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="stockProducto">Stock</label>
+                            <input type="number" class="form-control" id="stockProducto" v-model.number="productoEnEdicion.stock" required min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="imagenProducto">Imagen del Producto</label>
+                            <input type="file" class="form-control-file" id="imagenProducto" @change="handleImagenProductoUpload" accept="image/*">
+                            <div v-if="imagenProductoPreviewUrl" class="mt-2">
+                                <p>Vista previa de imagen:</p>
+                                <img :src="imagenProductoPreviewUrl" alt="Vista previa de imagen" style="max-height: 100px; border: 1px solid #ddd;">
+                            </div>
+                             <div v-else-if="modoFormularioProducto === 'editar' && productoEnEdicion.imagen_url && !imagenProductoFile" class="mt-2">
+                                 <p>Imagen actual:</p>
+                                <img :src="productoEnEdicion.imagen_url" alt="Imagen actual" style="max-height: 100px; border: 1px solid #ddd;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal" @click="cerrarModalProducto">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">
+                            <span v-if="modoFormularioProducto === 'crear'">Guardar Producto</span>
+                            <span v-else>Actualizar Producto</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div v-if="apiError" class="alert alert-danger mt-3">
+        Error general de API: {{ apiError }}
+    </div>
+    <div v-if="apiErrorProductos" class="alert alert-danger mt-3">
+        Error en productos: {{ apiErrorProductos }}
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    function getCookie(name) { /* ... (tu funcion getCookie) ... */ 
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+    const DEFAULT_PLACEHOLDER_LOGO = 'https://placehold.co/300x180/EFEFEF/AAAAAA?text=Sin+Logo';
+    const DEFAULT_PLACEHOLDER_PRODUCTO = 'https://placehold.co/300x200/EFEFEF/AAAAAA?text=Sin+Imagen';
+
+
+    const appNegocio = new Vue({
+        el: '#app-negocio',
+        data: {
+            activeTab: 'lista', // Pestaña activa por defecto: 'lista', 'formularioNegocio', 'pedidos'
+            negociosUsuario: [],
+            negocioSeleccionadoId: null,
+            productosNegocioSeleccionado: [],
+            
+            negocioEnEdicion: { id: null, nombre: '', descripcion: '', direccion: '', logo_url: '', nombreOriginal: '' },
+            modoFormularioNegocio: 'crear', 
+            logoFile: null, 
+            logoPreviewUrl: '', 
+
+            productoEnEdicion: { id: null, nombre: '', descripcion: '', precio: null, stock: null, imagen_url: '', nombreOriginal: '' },
+            modoFormularioProducto: 'crear',
+            imagenProductoFile: null, 
+            imagenProductoPreviewUrl: '', 
+
+            token: localStorage.getItem('token'),
+            loadingNegocios: false,
+            loadingProductos: false,
+            apiError: null,
+            apiErrorProductos: null 
+        },
+        computed: { /* ... (sin cambios) ... */
+            apiAuthHeaders() { 
+                const headers = {
+                    'Authorization': `Token ${this.token}`
+                };
+                if (csrftoken) {
+                    headers['X-CSRFToken'] = csrftoken;
+                }
+                return headers;
+            },
+            negocioActual() {
+                if (!this.negocioSeleccionadoId) return null;
+                return this.negociosUsuario.find(n => n.id === this.negocioSeleccionadoId);
+            }
+        },
+        mounted() { /* ... (sin cambios) ... */
+            if (!this.token) {
+                alert("Por favor, inicia sesion para administrar tus negocios.");
+                window.location.href = "{% url 'login' %}"; 
+                return;
+            }
+            // this.prepararNuevoNegocio(); // No es necesario aqui si el tab por defecto es 'lista'
+            this.cargarNegociosUsuario();
+            this.selectTab('lista'); // Asegurar que la pestaña correcta este activa al inicio
+        },
+        methods: {
+            selectTab(tabName) {
+                this.activeTab = tabName;
+                // Si cambiamos a la pestaña de lista, reseteamos el formulario de negocio a 'crear'
+                // a menos que se haya llegado alli desde un boton de "editar"
+                if (tabName === 'lista' && this.modoFormularioNegocio === 'editar') {
+                    // Opcional: podrias querer resetear el formulario de negocio aqui
+                    // this.prepararNuevoNegocio();
+                }
+            },
+            irACrearNegocio() {
+                this.prepararNuevoNegocio(); // Prepara el formulario para un nuevo negocio
+                this.selectTab('formularioNegocio'); // Cambia a la pestaña del formulario
+            },
+            irAEditarNegocio(negocio) {
+                this.negocioEnEdicion = { ...negocio, nombreOriginal: negocio.nombre }; 
+                this.logoFile = null; 
+                this.logoPreviewUrl = negocio.logo_url || ''; // Mostrar logo actual si existe
+                this.modoFormularioNegocio = 'editar';
+                this.selectTab('formularioNegocio'); // Cambia a la pestaña del formulario
+            },
+            cancelarFormularioNegocio() {
+                this.prepararNuevoNegocio();
+                this.selectTab('lista'); // Volver a la lista de negocios
+            },
+            // ... (setDefaultLogo, setDefaultImagenProducto, mostrarError, cargarNegociosUsuario sin cambios)
+            setDefaultLogo(event) { /* ... (sin cambios) ... */
+                event.target.src = DEFAULT_PLACEHOLDER_LOGO;
+                event.target.onerror = null;
+            },
+            setDefaultImagenProducto(event) { /* ... (sin cambios) ... */
+                event.target.src = DEFAULT_PLACEHOLDER_PRODUCTO;
+                event.target.onerror = null;
+            },
+            mostrarError(mensaje, tipo = 'general') { /* ... (sin cambios) ... */
+                if (tipo === 'productos') {
+                    this.apiErrorProductos = mensaje;
+                } else {
+                    this.apiError = mensaje;
+                }
+                console.error(`Error (${tipo}):`, mensaje); 
+                setTimeout(() => { 
+                    if (tipo === 'productos') this.apiErrorProductos = null;
+                    else this.apiError = null;
+                }, 7000);
+            },
+            async cargarNegociosUsuario() { /* ... (sin cambios) ... */
+                this.loadingNegocios = true;
+                this.apiError = null;
+                try {
+                    const response = await fetch('/api/negocios/', { headers: this.apiAuthHeaders });
+                    if (!response.ok) {
+                        const errData = await response.json().catch(() => null);
+                        throw new Error(errData?.detail || `Error ${response.status}: No se pudieron cargar los negocios.`);
+                    }
+                    const data = await response.json();
+                    let fetchedNegocios = Array.isArray(data) ? data : data.results || [];
+                    this.negociosUsuario = fetchedNegocios.map(n => ({
+                        ...n,
+                        logo_url: n.logo_url || DEFAULT_PLACEHOLDER_LOGO 
+                    }));
+                } catch (error) {
+                    this.mostrarError(error.message);
+                } finally {
+                    this.loadingNegocios = false;
+                }
+            },
+            prepararNuevoNegocio() { 
+                this.negocioEnEdicion = { id: null, nombre: '', descripcion: '', direccion: '', logo_url: '', nombreOriginal: '' };
+                this.logoFile = null;
+                this.logoPreviewUrl = '';
+                this.modoFormularioNegocio = 'crear';
+                const logoInput = document.getElementById('logoNegocioForm'); // Asegurar que el ID coincida
+                if (logoInput) logoInput.value = null;
+            },
+            // renombrado de seleccionarNegocioParaEdicion a editarNegocioSeleccionado
+            // editarNegocioSeleccionado(negocio) ya esta definido como irAEditarNegocio
+            cancelarEdicionNegocio() { // Este es el que se llama desde el boton "Cancelar Edicion" en el formulario
+                this.prepararNuevoNegocio(); 
+                this.selectTab('lista'); // Volver a la lista
+            },
+            handleLogoUpload(event) { /* ... (sin cambios) ... */
+                const file = event.target.files[0];
+                if (file) {
+                    this.logoFile = file;
+                    this.logoPreviewUrl = URL.createObjectURL(file); 
+                } else {
+                    this.logoFile = null;
+                    this.logoPreviewUrl = '';
+                }
+            },
+            async guardarNegocio() {
+                // ... (logica de guardarNegocio sin cambios, pero ahora se llama desde la pestaña del formulario)
+                this.apiError = null;
+                const esCrear = this.modoFormularioNegocio === 'crear';
+                const url = esCrear ? '/api/negocios/' : `/api/negocios/${this.negocioEnEdicion.id}/`;
+                const method = esCrear ? 'POST' : 'PUT';
+
+                let formData = new FormData();
+                formData.append('nombre', this.negocioEnEdicion.nombre);
+                formData.append('descripcion', this.negocioEnEdicion.descripcion || ''); 
+                formData.append('direccion', this.negocioEnEdicion.direccion || ''); 
+                if (this.logoFile) {
+                    formData.append('logo', this.logoFile);
+                }
+                try {
+                    const headers = { ...this.apiAuthHeaders };
+                    delete headers['Content-Type']; 
+                    const response = await fetch(url, { method: method, headers: headers, body: formData });
+                    const responseData = await response.json().catch(() => null);
+                    if (!response.ok) {
+                        let errorMessage = `Error ${response.status} al guardar negocio.`;
+                        if (responseData) {
+                            if (responseData.detail) errorMessage = responseData.detail;
+                            else if (typeof responseData === 'object') errorMessage = JSON.stringify(responseData);
+                            else if (typeof responseData === 'string') errorMessage = responseData;
+                        }
+                        throw new Error(errorMessage);
+                    }
+                    alert(`Negocio ${esCrear ? 'creado' : 'actualizado'} exitosamente!`);
+                    await this.cargarNegociosUsuario(); 
+                    this.prepararNuevoNegocio(); 
+                    this.selectTab('lista'); // Volver a la lista despues de guardar
+                } catch (error) {
+                    this.mostrarError(error.message);
+                }
+            },
+            async cargarProductosDelNegocioSeleccionado() { /* ... (sin cambios) ... */
+                if (!this.negocioSeleccionadoId) {
+                    this.productosNegocioSeleccionado = [];
+                    return;
+                }
+                this.loadingProductos = true;
+                this.apiErrorProductos = null; 
+                try {
+                    const response = await fetch(`/api/negocios/${this.negocioSeleccionadoId}/productos/`, { headers: this.apiAuthHeaders });
+                    if (!response.ok) {
+                         const errData = await response.json().catch(() => null);
+                        throw new Error(errData?.detail ||`Error ${response.status}: No se pudieron cargar los productos.`);
+                    }
+                    const data = await response.json();
+                    let fetchedProductos = data.productos || (Array.isArray(data) ? data : data.results || []);
+                    this.productosNegocioSeleccionado = fetchedProductos.map(p => ({
+                        ...p,
+                        imagen_url: p.imagen_url || DEFAULT_PLACEHOLDER_PRODUCTO
+                    }));
+                } catch (error) {
+                    this.mostrarError(error.message, 'productos');
+                    this.productosNegocioSeleccionado = [];
+                } finally {
+                    this.loadingProductos = false;
+                }
+            },
+            abrirModalProducto(producto = null) { /* ... (sin cambios) ... */
+                this.apiErrorProductos = null; 
+                if (producto) {
+                    this.productoEnEdicion = { ...producto, nombreOriginal: producto.nombre, imagen: null, imagen_url: producto.imagen_url || '' }; 
+                    this.modoFormularioProducto = 'editar';
+                } else {
+                    this.productoEnEdicion = { id: null, nombre: '', descripcion: '', precio: null, stock: null, imagen: null, imagen_url: '', nombreOriginal: '' };
+                    this.modoFormularioProducto = 'crear';
+                }
+                this.imagenProductoFile = null; 
+                this.imagenProductoPreviewUrl = '';
+                const imagenInput = document.getElementById('imagenProducto');
+                if (imagenInput) imagenInput.value = null;
+                $('#modalProducto').modal('show'); 
+            },
+            cerrarModalProducto() { /* ... (sin cambios) ... */
+                $('#modalProducto').modal('hide');
+            },
+            handleImagenProductoUpload(event) { /* ... (sin cambios) ... */
+                const file = event.target.files[0];
+                if (file) {
+                    this.imagenProductoFile = file;
+                    this.imagenProductoPreviewUrl = URL.createObjectURL(file); 
+                } else {
+                    this.imagenProductoFile = null;
+                    this.imagenProductoPreviewUrl = '';
+                }
+            },
+            async guardarProducto() { /* ... (sin cambios) ... */
+                if (!this.negocioSeleccionadoId) {
+                    this.mostrarError("Por favor, selecciona un negocio primero.", 'productos');
+                    return;
+                }
+                this.apiErrorProductos = null;
+                const esCrear = this.modoFormularioProducto === 'crear';
+                const url = esCrear ? `/api/negocios/${this.negocioSeleccionadoId}/productos/` : `/api/productos/${this.productoEnEdicion.id}/`;
+                const method = esCrear ? 'POST' : 'PUT';
+
+                let formData = new FormData();
+                formData.append('nombre', this.productoEnEdicion.nombre);
+                formData.append('descripcion', this.productoEnEdicion.descripcion || '');
+                formData.append('precio', parseFloat(this.productoEnEdicion.precio) || 0);
+                formData.append('stock', parseInt(this.productoEnEdicion.stock, 10) || 0);
+                if (this.imagenProductoFile) {
+                    formData.append('imagen', this.imagenProductoFile);
+                }
+                try {
+                    const headers = { ...this.apiAuthHeaders };
+                    delete headers['Content-Type']; 
+                    const response = await fetch(url, { method: method, headers: headers, body: formData });
+                    const responseData = await response.json().catch(() => null);
+                    if (!response.ok) {
+                        let errorMessage = `Error ${response.status} al guardar producto.`;
+                        if (responseData) {
+                            if (responseData.detail) errorMessage = responseData.detail;
+                            else if (typeof responseData === 'object') errorMessage = JSON.stringify(responseData);
+                            else if (typeof responseData === 'string') errorMessage = responseData;
+                        }
+                        throw new Error(errorMessage);
+                    }
+                    alert(`Producto ${esCrear ? 'agregado' : 'actualizado'} exitosamente!`);
+                    this.cerrarModalProducto();
+                    this.cargarProductosDelNegocioSeleccionado(); 
+                } catch (error) {
+                    this.mostrarError(`Error guardando producto: ${error.message}`, 'productos');
+                }
+            },
+            async eliminarProducto(productoId, productoNombre) { /* ... (sin cambios) ... */
+                 if (!confirm(`¿Estas seguro de que quieres eliminar el producto "${productoNombre}"?`)) return;
+                this.apiErrorProductos = null;
+                try {
+                    const headers = { ...this.apiAuthHeaders };
+                    delete headers['Content-Type'];
+                    const response = await fetch(`/api/productos/${productoId}/`, { method: 'DELETE', headers: headers });
+                    if (response.status === 204) { 
+                        alert("Producto eliminado exitosamente.");
+                        this.cargarProductosDelNegocioSeleccionado();
+                    } else if (!response.ok) {
+                         const errData = await response.json().catch(() => ({detail: `Error ${response.status} al eliminar producto.`}));
+                        throw new Error(errData.detail || JSON.stringify(errData));
+                    } else {
+                        alert("Producto eliminado (respuesta inesperada del servidor).");
+                        this.cargarProductosDelNegocioSeleccionado();
+                    }
+                } catch (error) {
+                    this.mostrarError(`Error eliminando producto: ${error.message}`, 'productos');
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

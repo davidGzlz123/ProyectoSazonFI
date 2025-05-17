@@ -2,7 +2,7 @@
 
 {% block content %}
 <div id="app-carrito" class="container mt-5">
-    <h1>Mi Carrito de Compras</h1>
+    <h1 style="margin: 0px;">Tu carrito te llama ...</h1>
 
     <div v-if="loading" class="alert alert-info mt-3">
         Cargando carrito...
@@ -12,50 +12,80 @@
         Error al cargar el carrito: {{ error }}
     </div>
 
-    <div v-if="!loading && !error && carrito && carrito.items && carrito.items.length > 0">
-        <table class="table table-hover mt-3">
-            <thead class="thead-light">
+    <div v-if="!loading && !error && carrito && carrito.items && carrito.items.length > 0" class="row">
+        <!-- Productos carrito -->
+        <div class="col-md-8">
+            <div class="table-responsive"> 
+            <table class="table table-hover mt-3 text-center infoTable">
+            <thead class=" name-list"> 
+                <!-- head-light -->
                 <tr>
-                    <th scope="col">Producto</th>
-                    <th scope="col">Negocio</th>
-                    <th scope="col" class="text-center">Cantidad</th>
-                    <th scope="col" class="text-right">Precio Unitario</th>
-                    <th scope="col" class="text-right">Subtotal</th>
-                    <th scope="col" class="text-center">Acciones</th>
+                <th scope="col">Producto</th>
+                <th scope="col">Negocio</th>
+                <th scope="col">Cantidad</th>
+                <th scope="col">Precio Unitario</th>
+                <th scope="col">Subtotal</th>
+                <th scope="col">Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="item in carrito.items" :key="item.id">
-                    <td v-text="item.producto ? item.producto.nombre : 'Producto Desconocido'"></td>
-                    <td v-text="item.negocio ? item.negocio.nombre : 'N/A'"></td>
-                    <td class="text-center">
-                        <input type="number" v-model.number="item.cantidad" @change="actualizarCantidad(item)" min="1" class="form-control form-control-sm" style="width: 70px; display: inline-block;">
-                    </td>
-                    <td class="text-right" v-text="item.precio_al_agregar !== null && item.precio_al_agregar !== undefined ? '$' + parseFloat(item.precio_al_agregar).toFixed(2) : '$0.00'"></td>
-                    <td class="text-right" v-text="item.subtotal !== null && item.subtotal !== undefined ? '$' + parseFloat(item.subtotal).toFixed(2) : '$0.00'"></td>
-                    <td class="text-center">
-                        <button @click="eliminarItem(item.id)" class="btn btn-danger btn-sm">Eliminar</button>
-                    </td>
+                <td v-text="item.producto ? item.producto.nombre : 'Producto Desconocido'"></td>
+                <td v-text="item.negocio ? item.negocio.nombre : 'N/A'"></td>
+                <td class="text-center">
+                    <input
+                    type="number"
+                    v-model.number="item.cantidad"
+                    @change="actualizarCantidad(item)"
+                    min="1"
+                    class="form-control form-control-sm"
+                    style="width: 70px; display: inline-block;"
+                    >
+                </td>
+                <td class="text-right"
+                    v-text=" item.precio_al_agregar != null
+                            ? '$' + parseFloat(item.precio_al_agregar).toFixed(2)
+                            : '$0.00' ">
+                </td>
+                <td class="text-right"
+                    v-text=" item.subtotal != null
+                            ? '$' + parseFloat(item.subtotal).toFixed(2)
+                            : '$0.00' ">
+                </td>
+                <td class="text-center">
+                    <button
+                    @click="eliminarItem(item.id)"
+                    class="btn btn-danger btn-sm"
+                    >
+                    <img src="{{ MEDIA_URL }}principal/trash.png" alt="Eliminar producto" width="30" height="30">
+                    </button>
+                </td>
                 </tr>
             </tbody>
-            <tfoot>
-                <tr>
-                    <td colspan="4" class="text-right"><strong>Total del Carrito:</strong></td>
-                    <td class="text-right"><strong v-text="carrito.total_carrito !== null && carrito.total_carrito !== undefined ? '$' + parseFloat(carrito.total_carrito).toFixed(2) : '$0.00'"></strong></td>
-                    <td></td>
-                </tr>
-            </tfoot>
-        </table>
-
-        <div class="text-right mt-4">
-            <button @click="procederAlPago" class="btn btn-primary btn-lg" :disabled="creandoPedido">
-                <span v-if="creandoPedido" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                {# Texto del boton corregido para usar v-if/v-else de Vue #}
-                <span v-if="creandoPedido">Procesando...</span>
-                <span v-else>Hacer Pedido</span>
-            </button>
+            <!-- ¡NO más <tfoot> aquí! -->
+            </table>
+            </div>
         </div>
+
+        <!-- Total -->
+        <div class="total-block totalDiv">
+            <div class="total-header text-center"><h3>Total del carrito</h3></div>
+            <div class="divtext-bt text-center">
+                <p class="total-text" style="font-size: 30px;">
+                    {{ carrito.total_carrito != null 
+                        ? '$' + parseFloat(carrito.total_carrito).toFixed(2)
+                        : '$0.00' }}
+                </p>
+
+                <button @click="procederAlPago" class="btn-pedido" :disabled="creandoPedido">
+                    <span v-if="creandoPedido">Procesando...</span>
+                    <span v-else>Hacer Pedido</span>
+                </button>
+            </div>
+        </div>
+
     </div>
+
 
     <div v-if="!loading && !error && (!carrito || !carrito.items || carrito.items.length === 0)" class="alert alert-secondary mt-3">
         Tu carrito esta vacio. ¡Ve a explorar nuestros productos!

@@ -7,6 +7,28 @@
     <p class="lead text-center">Explora los negocios disponibles y descubre sus productos.</p>
     <hr>
 
+    <!-- Botones filtros -->
+    <div class="button-group text-center">
+        <button class="custom-btn">
+            <i class="fa-solid fa-star">
+                Recomendado
+                <img src="{{ MEDIA_URL }}principal/recommend.png" alt="star-logo" width="30" height="30">
+            </i>
+        </button>
+        <button class="custom-btn">
+            <i class="fa-solid fa-tag"></i>
+            Ofertas
+        </button>
+        <button class="custom-btn">
+            <i class="fa-solid fa-fire"></i>
+            Populares
+        </button>
+        <button class="custom-btn">
+            <i class="fa-solid fa-sliders"></i>
+            Filtros
+        </button>
+    </div>
+
     <div class="container mt-4">
         <h2>Negocios Disponibles</h2>
         <div v-if="loading" class="alert alert-info">Cargando negocios...</div>
@@ -16,9 +38,9 @@
             <div class="col-md-4 mb-4" v-for="negocio in negocios" :key="negocio.id">
                 <div class="card h-100 div-local">
                     <img :src="negocio.logo_url"
-                         class="card-img-top cardIMG"
-                         :alt="'Logo de ' + (negocio.nombre || 'Negocio')"
-                         @error="handleImageError($event, negocio.nombre)">
+                        class="card-img-top cardIMG"
+                        :alt="'Logo de ' + (negocio.nombre || 'Negocio')"
+                        @error="handleImageError($event, negocio.nombre)">
 
                     <div class="card-body d-flex flex-column localInfo">
                         <h5 class="card-title" v-text="negocio.nombre"></h5>

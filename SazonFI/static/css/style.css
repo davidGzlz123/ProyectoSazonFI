@@ -98,6 +98,26 @@ footer{
 }
 
 /* ------------HOME VIEW------------------- */
+.custom-btn{
+    background-color: #E2715B70;
+    border-radius: 10px;
+    border: none;
+    padding: 5px 20px 5px 20px;
+    color: var(--fondoNavFot);
+}
+
+.custom-btn:hover{
+    background-color: var(--fondoNavFot);
+    color: white;
+}
+
+button.custom-btn:focus,
+button.custom-btn:active {
+    color: white;
+    background-color: var(--fondoNavFot);
+}
+
+
 .div-local{
     border-radius: 20px;
 }
@@ -132,4 +152,78 @@ footer{
 .btProduct:active {
   background-color: #E2715B70 !important;
   box-shadow: none !important;
+}
+
+/* -------------------CARRITO--------------------- */
+/* ----- Bloque Total ----*/
+.totalDiv{
+    background-color: #D9D9D980;
+    border-radius: 1rem;
+    overflow: hidden;
+    /* padding-bottom: 1rem; */
+}
+
+.total-header{
+    background-color: #E2715B90;
+    border-radius: 20px 20px 0px 0px;
+    padding: 20px 70px 20px 70px;
+    /* font-size: 25px; */
+}
+
+.divtext-bt{
+    padding: 20px;
+}
+
+.btn-pedido{
+    background-color: #E2715B70;
+    border-radius: 10px;
+    border: none;
+    padding: 10px 20px;
+    color: rgba(0, 0, 0, 0.517);
+    width: 150px;
+}
+
+.btn-pedido:hover{
+    background-color: var(--fondoNavFot);
+    color: white;
+}
+
+.btn-pedido:focus,
+.btn-pedido:active {
+    background-color: var(--fondoNavFot) !important;
+    box-shadow: none !important;
+}
+
+/* ------------------- PRODUCTOS ---------------- */
+.infoTable {
+    border-collapse: separate;     
+    border-spacing: 0;             
+    border-radius: 20px;           
+    overflow: hidden;             
+}
+
+.infoTable thead th {
+    background-color: #E2715B90;  
+    color: #000;
+    padding: 10px;                
+    border: none;    
+    text-align: center;
+    vertical-align: middle;              
+}
+
+.infoTable thead th:first-child {
+    border-top-left-radius: 10px;
+}
+.infoTable thead th:last-child {
+    border-top-right-radius: 10px;
+}
+
+.infoTable tbody td {
+    background-color: #D9D9D980;   
+    border: none;                
+}
+
+.infoTable th,
+.infoTable td {
+    padding: 20px !important;
 }

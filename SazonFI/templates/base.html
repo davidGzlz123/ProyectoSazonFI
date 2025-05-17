@@ -21,10 +21,6 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav w-100 align-items-center">
-                    {# ENLACE AL CARRITO - CORREGIDO #}
-                    <li class="nav-item" id="carrito-link" style="display: none;">
-                        <a class="nav-link" href="{% url 'carritos:ver_carrito' %}">Mi Carrito</a>
-                    </li>
                     <!-- Barra de búsqueda -->
                     <li class="nav-item mx-auto" id="search-bar">
                         <form action="/buscar" method="get" class="search-bar">
@@ -40,8 +36,17 @@
                             Ingresa o Regístrate
                         </a>
                     </li>
+                    {# ENLACE AL CARRITO - CORREGIDO #}
+                    <li class="nav-item" id="carrito-link" style="display: none;">
+                        <a class="nav-link" href="{% url 'carritos:ver_carrito' %}">
+                            <img src="{{ MEDIA_URL }}principal/carrito.png" alt="Carrito-link" width="50" height="50">
+                        </a>
+                    </li>
                     <li class="nav-item" id="logout-link" style="display: none;">
-                        <a class="nav-link" href="#" onclick="logout()">Cerrar Sesion</a>
+                        <a class="nav-link" href="#" onclick="logout()" style="color: #D9D9D9; font-size: 25px;">
+                            <img src="{{ MEDIA_URL }}principal/login.png" alt="Login-Icon" width="40" height="40">
+                            Cerrar Sesion
+                        </a>
                     </li>
                 </ul>
             </div>
@@ -54,7 +59,24 @@
     </div>
 
     <footer class="mt-5 text-center py-3">
-        <p>&copy; 2025 SazonFI</p>
+        <ul class="list-inline">
+            <li class="list-inline-item">
+                <a href="#">
+                    <img src="{{ MEDIA_URL }}principal/facebook.png" alt="Facebook" width="48" height="48">
+                </a>
+            </li>
+            <li class="list-inline-item">
+                <a href="#">
+                    <img src="{{ MEDIA_URL }}principal/instagram.png" alt="Instagram" width="40" height="40">
+                </a>
+            </li>
+            <li class="list-inline-item">
+                <a href="#">
+                    <img src="{{ MEDIA_URL }}principal/x.png" alt="Twitter/X" width="40" height="40">
+                </a>
+            </li>
+        </ul>
+        <p style="color: #D9D9D9;">&copy; 2025 SazonFI</p>
     </footer>
 
     <script>

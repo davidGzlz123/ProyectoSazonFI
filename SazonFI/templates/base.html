@@ -31,10 +31,15 @@
                     </li>
                     <!-- Login/Registro -->
                     <li class="nav-item" id="login-link">
-                        <a class="nav-link login-btn" href="{% url 'login' %}" style="color: #D9D9D9; font-size: 25px;">
-                            <img src="{{ MEDIA_URL }}principal/login.png" alt="Login-Icon" width="40" height="40">
-                            Ingresa o Regístrate
-                        </a>
+                    <div class="d-flex align-items-center">
+                        <!-- icono -->
+                        <img src="{{ MEDIA_URL }}principal/login.png" alt="Login-Icon" width="45" height="45" class="mr-2">
+                        <a href="{% url 'login' %}" class="nav-link login-btn {% if request.resolver_match.url_name == 'registro' %}active{% endif %}" style="color: #D9D9D9; font-size: 25px;">Ingresa</a>
+
+                        <span class="mx-1" style="color: #D9D9D9; font-size: 25px;">o</span>
+
+                        <a href="{% url 'registro' %}" class="nav-link login-btn {% if request.resolver_match.url_name == 'registro' %}active{% endif %}" style="color: #D9D9D9; font-size: 25px;">Regístrate</a>
+                    </div>
                     </li>
                     {# ENLACE AL CARRITO - CORREGIDO #}
                     <li class="nav-item" id="carrito-link" style="display: none;">

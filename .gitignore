@@ -20,3 +20,6 @@ env/
 # Archivos del IDE (ej. .idea/ para PyCharm, .vscode/ para VS Code)
 .idea/
 .vscode/
+
+# Visual Studio cache/settings
+.vs/

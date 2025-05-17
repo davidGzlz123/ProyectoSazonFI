@@ -1,0 +1,22 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Base de datos SQLite de desarrollo
+db.sqlite3
+
+# Archivos de media subidos por usuarios (si aplica, y no son parte del template)
+# media/
+
+# Entorno virtual (si tienes uno dentro del proyecto, ej. venv/ o env/)
+venv/
+env/
+
+# Archivos de configuración local (ej. .env)
+.env
+
+# Archivos del IDE (ej. .idea/ para PyCharm, .vscode/ para VS Code)
+.idea/
+.vscode/

@@ -4,8 +4,7 @@
     --fondo: #FFF8E0;
 }
 
-body
-{
+body{
     background-color: var(--fondo);
 }
 
@@ -58,3 +57,50 @@ body
 footer{
     background-color: var(--fondoNavFot);
 }
+
+/* ---------------- LOGIN --------------- */
+.loginInfo{
+    padding: 20px;
+}
+
+.card-body{
+    background-color: rgba(217, 217, 217, 0.471);
+    border-radius: 20px;
+    padding: 15px 20px 0px 20px;
+}
+
+.btLogin{
+    background-color: #E2715B70;
+    border-radius: 20px;
+    color: #E2715B;
+    border: none;
+    margin: 10px 0px 10px 0px;
+    width: 150px;
+}
+
+.btLogin:hover{
+    background-color: var(--fondoNavFot);
+}
+
+/* si mantienes btn-primary */
+.btLogin:focus,
+.btLogin:active {
+  background-color: #E2715B70 !important;
+  box-shadow: none !important;
+}
+
+
+
+.form-control{
+    background-color: #E2715B30;
+    border: none;
+    border-radius: 20px;
+}
+
+.form-control:focus {
+  background-color: #E2715B30;        /* blanco */
+  box-shadow: 0 0 0 0.2rem #E2715B60; /* glow azul */
+}
+
+
+

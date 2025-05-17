@@ -1,3 +1,60 @@
-﻿body
+﻿/* Colores usados en toda la página */
+:root {
+    --fondoNavFot: #E2715B;
+    --fondo: #FFF8E0;
+}
+
+body
 {
+    background-color: var(--fondo);
+}
+
+/* ------------------- NAVBAR ---------------- */
+.navbar-custom {
+    background-color: var(--fondoNavFot);
+    width: 100%;
+    margin: 0;
+    padding: 0 30px 10px 30px;
+    box-sizing: border-box;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    background-color: #D9D9D9;
+    padding: 0 12px;     
+    height: 40px;        
+    border-radius: 20px; 
+    box-sizing: border-box;
+    width: 500px;
+    margin: 0; 
+} 
+
+/* Lupa dentro de la barra */
+.search-icon {
+    flex-shrink: 0;      
+    width: 24px;         
+    height: 24px;
+    margin-right: 8px;   
+}
+
+/* Input sin bordes */
+.search-input {
+    flex: 1; 
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 1.2rem;
+    color: #555;
+}
+
+.search-input::placeholder {
+    color: #00000021;
+}
+
+
+
+/* ------------------- FOOTER ---------------- */
+footer{
+    background-color: var(--fondoNavFot);
 }

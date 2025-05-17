@@ -1,10 +1,11 @@
+# api/views.py
 from rest_framework import viewsets, permissions
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authtoken.models import Token
-from django.contrib.auth import authenticate
-from usuarios.models import Usuario
-from usuarios.serializers import UsuarioSerializer
+from django.contrib.auth import authenticate, login # <--- IMPORTANTE: Añadir 'login'
+from usuarios.models import Usuario # Asumiendo que tu modelo Usuario esta en usuarios/models.py
+from usuarios.serializers import UsuarioSerializer # Asumiendo que tu UsuarioSerializer esta en usuarios/serializers.py
 from rest_framework.views import APIView
 
 class RegistroUsuarioViewSet(viewsets.ViewSet):
@@ -14,8 +15,12 @@ class RegistroUsuarioViewSet(viewsets.ViewSet):
         serializer = UsuarioSerializer(data=request.data)
         if serializer.is_valid():
             usuario = serializer.save()
-            usuario.set_password(request.data['password'])
-            usuario.save()
+            # La contraseña ya deberia estar hasheada por el serializador si usa create_user
+            # o si el serializador llama a set_password.
+            # Si no, esta bien aqui:
+            # usuario.set_password(request.data['password']) 
+            # usuario.save()
+            # Es mejor que el serializador maneje la creacion completa y el hasheo.
             return Response({'message': 'Usuario registrado con exito'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -27,13 +32,24 @@ class InicioSesionAPIView(APIView):
         username = request.data.get('username')
         password = request.data.get('password')
 
-        user = authenticate(username=username, password=password)
+        user = authenticate(request, username=username, password=password) # Pasar 'request' es buena practica
+        
         if user is not None:
+            # --- INICIO DE CAMBIO IMPORTANTE ---
+            # Iniciar sesion de Django para que @login_required funcione
+            login(request, user) 
+            # --- FIN DE CAMBIO IMPORTANTE ---
+            
             token, created = Token.objects.get_or_create(user=user)
-            #  ¡CORRECCIÓN IMPORTANTE!  Asegúrate de que 'rol' existe en tu modelo Usuario
-            rol = user.rol if hasattr(user, 'rol') else 'usuario' 
+            
+            # Asegurarse de que 'rol' existe en tu modelo Usuario y obtenerlo de forma segura
+            rol_usuario = getattr(user, 'rol', 'cliente') # 'cliente' como default si no tiene rol
+            
             return Response({
                 'token': token.key,
-                'rol': rol 
-            })
+                'rol': rol_usuario,
+                'user_id': user.pk, # Es util enviar el ID del usuario
+                'username': user.username
+            }, status=status.HTTP_200_OK)
+        
         return Response({'error': 'Credenciales invalidas'}, status=status.HTTP_401_UNAUTHORIZED)

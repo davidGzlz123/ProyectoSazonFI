@@ -1,3 +1,106 @@
-﻿body
-{
+﻿/* Colores usados en toda la página */
+:root {
+    --fondoNavFot: #E2715B;
+    --fondo: #FFF8E0;
 }
+
+body{
+    background-color: var(--fondo);
+}
+
+/* ------------------- NAVBAR ---------------- */
+.navbar-custom {
+    background-color: var(--fondoNavFot);
+    width: 100%;
+    margin: 0;
+    padding: 0 30px 10px 30px;
+    box-sizing: border-box;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    background-color: #D9D9D9;
+    padding: 0 12px;     
+    height: 40px;        
+    border-radius: 20px; 
+    box-sizing: border-box;
+    width: 500px;
+    margin: 0; 
+} 
+
+/* Lupa dentro de la barra */
+.search-icon {
+    flex-shrink: 0;      
+    width: 24px;         
+    height: 24px;
+    margin-right: 8px;   
+}
+
+/* Input sin bordes */
+.search-input {
+    flex: 1; 
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 1.2rem;
+    color: #555;
+}
+
+.search-input::placeholder {
+    color: #00000021;
+}
+
+
+
+/* ------------------- FOOTER ---------------- */
+footer{
+    background-color: var(--fondoNavFot);
+}
+
+/* ---------------- LOGIN --------------- */
+.loginInfo{
+    padding: 20px;
+}
+
+.card-body{
+    background-color: rgba(217, 217, 217, 0.471);
+    border-radius: 20px;
+    padding: 15px 20px 0px 20px;
+}
+
+.btLogin{
+    background-color: #E2715B70;
+    border-radius: 20px;
+    color: #E2715B;
+    border: none;
+    margin: 10px 0px 10px 0px;
+    width: 150px;
+}
+
+.btLogin:hover{
+    background-color: var(--fondoNavFot);
+}
+
+/* si mantienes btn-primary */
+.btLogin:focus,
+.btLogin:active {
+  background-color: #E2715B70 !important;
+  box-shadow: none !important;
+}
+
+
+
+.form-control{
+    background-color: #E2715B30;
+    border: none;
+    border-radius: 20px;
+}
+
+.form-control:focus {
+  background-color: #E2715B30;        /* blanco */
+  box-shadow: 0 0 0 0.2rem #E2715B60; /* glow azul */
+}
+
+
+

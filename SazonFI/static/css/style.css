@@ -82,14 +82,11 @@ footer{
     background-color: var(--fondoNavFot);
 }
 
-/* si mantienes btn-primary */
 .btLogin:focus,
 .btLogin:active {
   background-color: #E2715B70 !important;
   box-shadow: none !important;
 }
-
-
 
 .form-control{
     background-color: #E2715B30;
@@ -102,5 +99,39 @@ footer{
   box-shadow: 0 0 0 0.2rem #E2715B60; /* glow azul */
 }
 
+/* ------------HOME VIEW------------------- */
+.div-local{
+    border-radius: 20px;
+}
 
+.cardIMG{
+    height: 180px; 
+    object-fit: cover; 
+    border: 1px solid #D9D9D931; 
+    background-color: #f8f9fa; 
+    border-radius: 20px 20px 0px 0px;
+}
 
+.localInfo{
+    background-color: #e2725bbe; 
+    border-radius: 0px 0px 20px 20px;
+    padding-bottom: 20px;
+}
+
+.btProduct{
+    background-color: #D9D9D931;
+    border-radius: 20px;
+    color: rgba(0, 0, 0, 0.517);
+    border: none;
+    width: 150px;
+}
+
+.btProduct:hover{
+    background-color: var(--fondoNavFot);
+}
+
+.btProduct:focus,
+.btProduct:active {
+  background-color: #E2715B70 !important;
+  box-shadow: none !important;
+}

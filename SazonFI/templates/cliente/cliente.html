@@ -2,7 +2,7 @@
 
 {% block content %}
 <div id="app-cliente-negocios">
-    <h1>Selecciona un Negocio</h1>
+    <h1 class="text-center">¡Dale gusto a tu diente hoy!</h1>
 
     <div class="container mt-4">
         <h2>Negocios Disponibles</h2>
@@ -11,18 +11,17 @@
 
         <div class="row" v-if="!loading && negocios.length > 0">
             <div class="col-md-4 mb-4" v-for="negocio in negocios" :key="negocio.id">
-                <div class="card h-100">
+                <div class="card h-100 div-local">
                     {# --- IMAGEN DEL LOGO DEL NEGOCIO CON FALLBACK MEJORADO --- #}
                     <img :src="negocio.logo_url || 'https://placehold.co/300x180/EFEFEF/AAAAAA?text=Sin+Logo'"
-                         class="card-img-top"
-                         :alt="'Logo de ' + negocio.nombre"
-                         style="height: 180px; object-fit: cover; border-bottom: 1px solid #eee;"
-                         @error="handleImageError">
+                        class="card-img-top cardIMG"
+                        :alt="'Logo de ' + negocio.nombre"
+                        @error="handleImageError">
 
-                    <div class="card-body d-flex flex-column">
+                    <div class="card-body d-flex flex-column localInfo">
                         <h5 class="card-title" v-text="negocio.nombre"></h5>
                         <p class="card-text" v-text="negocio.descripcion"></p>
-                        <button @click="verProductos(negocio.id)" class="btn btn-primary mt-auto">Ver Productos</button>
+                        <button @click="verProductos(negocio.id)" class="btn btn-primary mt-auto btProduct d-block mx-auto">Ver Productos</button>
                     </div>
                 </div>
             </div>

@@ -108,13 +108,11 @@
         },
         computed: {
             pedidosActivos() {
-                // Pedidos que aun estan en proceso o pendientes, incluyendo enviados
-                const estadosActivos = ['PENDIENTE', 'PROCESANDO', 'ENVIADO']; // <--- CAMBIO AQUI
+                const estadosActivos = ['PENDIENTE', 'PROCESANDO', 'ENVIADO'];
                 return this.todosLosPedidos.filter(p => p.estado && estadosActivos.includes(p.estado.toUpperCase()));
             },
             pedidosHistorial() {
-                // Pedidos que ya finalizaron (completados o cancelados)
-                const estadosHistorial = ['COMPLETADO', 'CANCELADO']; // <--- CAMBIO AQUI
+                const estadosHistorial = ['COMPLETADO', 'CANCELADO'];
                 return this.todosLosPedidos.filter(p => p.estado && estadosHistorial.includes(p.estado.toUpperCase()));
             }
         },
@@ -173,10 +171,6 @@
                         if (this.todosLosPedidos.length > 0 && this.todosLosPedidos[0].items_pedido.length > 0) {
                             const primerItem = this.todosLosPedidos[0].items_pedido[0];
                             console.log('Primer item del primer pedido (para depurar nombres):', JSON.parse(JSON.stringify(primerItem)));
-                            console.log('>>>>> item.nombre_producto:', primerItem.nombre_producto);
-                            console.log('>>>>> item.producto.nombre:', primerItem.producto ? primerItem.producto.nombre : 'producto es null/undefined');
-                            console.log('>>>>> item.negocio.nombre:', primerItem.negocio ? primerItem.negocio.nombre : 'negocio es null/undefined');
-                            console.log('>>>>> pedido.estado (del primer pedido):', this.todosLosPedidos[0].estado);
                         }
                     })
                     .catch(error => {
@@ -190,12 +184,8 @@
             formatDate(dateString) {
                 if (!dateString) return 'Fecha no disponible';
                 const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-                try {
-                    return new Date(dateString).toLocaleDateString('es-MX', options);
-                } catch (e) {
-                    console.error("Error formateando fecha:", dateString, e);
-                    return "Fecha invalida";
-                }
+                try { return new Date(dateString).toLocaleDateString('es-MX', options); }
+                catch (e) { console.error("Error formateando fecha:", dateString, e); return "Fecha invalida"; }
             },
             estadoClase(estado) {
                 if (!estado) return '';

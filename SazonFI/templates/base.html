@@ -9,47 +9,43 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light navbar-custom">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'index' %}">
-                <img src="{{ MEDIA_URL }}principal/logo.png" alt="Logo-SazonFI" width="220" height="150" class="d-inline-block align-top">
-            </a>
-            <!-- <a class="navbar-brand" href="{% url 'index' %}">SazonFI</a> -->
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav w-100 align-items-center">
-                    <!-- Barra de búsqueda -->
-                    <li class="nav-item mx-auto" id="search-bar">
-                        <form action="/buscar" method="get" class="search-bar">
-                                <!-- Icono de lupa -->
-                                <img src="{{ MEDIA_URL }}principal/search.png" alt="search-icon" class="search-icon">
-                            <input type="search" name="q" class="search-input" placeholder="Buscar comida ..." aria-label="Buscar comida">
-                        </form>
-                    </li>
-                    <!-- Login/Registro -->
-                    <li class="nav-item" id="login-link">
-                        <a class="nav-link login-btn" href="{% url 'login' %}" style="color: #D9D9D9; font-size: 25px;">
-                            <img src="{{ MEDIA_URL }}principal/login.png" alt="Login-Icon" width="40" height="40">
-                            Ingresa o Regístrate
-                        </a>
-                    </li>
-                    {# ENLACE AL CARRITO - CORREGIDO #}
-                    <li class="nav-item" id="carrito-link" style="display: none;">
-                        <a class="nav-link" href="{% url 'carritos:ver_carrito' %}">
-                            <img src="{{ MEDIA_URL }}principal/carrito.png" alt="Carrito-link" width="50" height="50">
-                        </a>
-                    </li>
-                    <li class="nav-item" id="logout-link" style="display: none;">
-                        <a class="nav-link" href="#" onclick="logout()" style="color: #D9D9D9; font-size: 25px;">
-                            <img src="{{ MEDIA_URL }}principal/login.png" alt="Login-Icon" width="40" height="40">
-                            Cerrar Sesion
-                        </a>
-                    </li>
-                </ul>
-            </div>
+    {# Considera usar class="navbar navbar-expand-lg navbar-custom" si quieres tu fondo naranja del CSS #}
+    <nav class="navbar navbar-expand-lg navbar-light bg-light"> 
+        <a class="navbar-brand" href="{% url 'index' %}">SazonFI</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item"> {# Quitado 'active' para que se maneje dinamicamente si es necesario #}
+                    <a class="nav-link" href="{% url 'index' %}">Inicio</a>
+                </li>
+                
+                {# Enlaces para Cliente #}
+                <li class="nav-item" id="carrito-link" style="display: none;"> 
+                    <a class="nav-link" href="{% url 'carritos:ver_carrito' %}">Mi Carrito</a> 
+                </li>
+                <li class="nav-item" id="mis-pedidos-link" style="display: none;"> 
+                    <a class="nav-link" href="{% url 'carritos:mis_pedidos_pagina' %}">Mis Pedidos</a> 
+                </li>
+
+                {# Enlace para Usuario Negocio #}
+                <li class="nav-item" id="panel-negocio-link" style="display: none;"> 
+                    <a class="nav-link" href="{% url 'pagina_negocio' %}">Panel Negocio</a> 
+                </li>
+
+                {# Enlaces Comunes #}
+                <li class="nav-item" id="login-link">
+                    <a class="nav-link" href="{% url 'login' %}">Login</a>
+                </li>
+                <li class="nav-item" id="registro-link">
+                    <a class="nav-link" href="{% url 'registro' %}">Registro</a>
+                </li>
+                <li class="nav-item" id="logout-link" style="display: none;">
+                    <a class="nav-link" href="#" onclick="logout(event)">Cerrar Sesion</a> {# Pasar event a logout #}
+                </li>
+            </ul>
         </div>
     </nav>
 
@@ -58,68 +54,71 @@
         {% endblock %}
     </div>
 
-    <footer class="mt-5 text-center py-3">
-        <ul class="list-inline">
-            <li class="list-inline-item">
-                <a href="#">
-                    <img src="{{ MEDIA_URL }}principal/facebook.png" alt="Facebook" width="48" height="48">
-                </a>
-            </li>
-            <li class="list-inline-item">
-                <a href="#">
-                    <img src="{{ MEDIA_URL }}principal/instagram.png" alt="Instagram" width="40" height="40">
-                </a>
-            </li>
-            <li class="list-inline-item">
-                <a href="#">
-                    <img src="{{ MEDIA_URL }}principal/x.png" alt="Twitter/X" width="40" height="40">
-                </a>
-            </li>
-        </ul>
-        <p style="color: #D9D9D9;">&copy; 2025 SazonFI</p>
+    <footer class="mt-5 bg-light text-center py-3">
+        <p>&copy; 2025 SazonFI</p>
     </footer>
 
     <script>
-        function logout() {
+        function logout(event) {
+            event.preventDefault(); // Prevenir la accion por defecto del enlace '#'
             localStorage.removeItem('token');
-            localStorage.removeItem('rol');
-            checkAuthentication();
-            window.location.href = "{% url 'index' %}";
+            localStorage.removeItem('rol'); 
+            localStorage.removeItem('username'); // Limpiar tambien el username si lo guardas
+            localStorage.removeItem('userId');   // Limpiar tambien el userId si lo guardas
+            checkAuthentication(); 
+            window.location.href = "{% url 'index' %}"; 
         }
 
         function checkAuthentication() {
             const token = localStorage.getItem('token');
-            const rol = localStorage.getItem('rol');
+            const rol = localStorage.getItem('rol'); 
+            console.log("checkAuthentication - Token:", token, "Rol:", rol); // DEBUG
 
             const loginLink = document.getElementById('login-link');
             const registroLink = document.getElementById('registro-link');
             const logoutLink = document.getElementById('logout-link');
-            const carritoLink = document.getElementById('carrito-link');
+            const carritoLink = document.getElementById('carrito-link'); 
+            const misPedidosLink = document.getElementById('mis-pedidos-link');
+            const panelNegocioLink = document.getElementById('panel-negocio-link');
 
-            if (token) {
-                if (loginLink) loginLink.style.display = 'none';
-                if (registroLink) registroLink.style.display = 'none';
-                if (logoutLink) logoutLink.style.display = 'block';
+            // Ocultar todos los enlaces condicionales primero
+            if (carritoLink) carritoLink.style.display = 'none';
+            if (misPedidosLink) misPedidosLink.style.display = 'none';
+            if (panelNegocioLink) panelNegocioLink.style.display = 'none';
 
-                if (rol === 'cliente' && carritoLink) {
-                    carritoLink.style.display = 'block';
-                } else if (carritoLink) {
-                    carritoLink.style.display = 'none';
+            if (token) { // Usuario logueado
+                console.log("Usuario logueado detectado."); // DEBUG
+                if(loginLink) loginLink.style.display = 'none';
+                if(registroLink) registroLink.style.display = 'none';
+                if(logoutLink) logoutLink.style.display = 'block';
+
+                if (rol === 'cliente') {
+                    console.log("Rol cliente detectado, mostrando enlaces de cliente."); // DEBUG
+                    if (carritoLink) carritoLink.style.display = 'block';
+                    if (misPedidosLink) misPedidosLink.style.display = 'block';
+                } else if (rol === 'negocio') {
+                    console.log("Rol negocio detectado, mostrando panel de negocio."); // DEBUG
+                    if (panelNegocioLink) panelNegocioLink.style.display = 'block';
+                } else {
+                     console.log("Rol no es ni cliente ni negocio, o no definido:", rol); // DEBUG
                 }
 
-            } else {
-                if (loginLink) loginLink.style.display = 'block';
-                if (registroLink) registroLink.style.display = 'block';
-                if (logoutLink) logoutLink.style.display = 'none';
-                if (carritoLink) carritoLink.style.display = 'none';
+            } else { // No hay token (no logueado)
+                console.log("Usuario no logueado detectado."); // DEBUG
+                if(loginLink) loginLink.style.display = 'block';
+                if(registroLink) registroLink.style.display = 'block';
+                if(logoutLink) logoutLink.style.display = 'none';
+                // Los demas ya estan ocultos por defecto o por el reseteo al inicio de la funcion
             }
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
+        // Asegurarse de que el DOM este completamente cargado antes de ejecutar checkAuthentication
+        document.addEventListener('DOMContentLoaded', function() {
             checkAuthentication();
         });
     </script>
     {% block scripts %}
+    {# Vue.js y otros scripts especificos de pagina se cargaran aqui #}
     {% endblock %}
 </body>
 </html>

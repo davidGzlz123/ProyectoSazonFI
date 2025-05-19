@@ -176,8 +176,11 @@
                                     v-model="grupoPedido.nuevo_estado"
                                     @change="logNuevoEstado(grupoPedido)">
                                 <option :value="null" disabled>-- Selecciona un estado --</option>
+                                {# CAMBIO AQUÍ: Usar un
+                                <span> con v-text dentro de
+                                <option> #}
                                 <option v-for="estadoOp in opcionesEstadoPedido" :key="estadoOp.valor" :value="estadoOp.valor">
-                                    {{ estadoOp.texto }}
+                                    <span v-text="estadoOp.texto"></span>
                                 </option>
                             </select>
                             <small class="mr-2">(Actual: {{grupoPedido.pedido_estado}}, Nuevo: {{grupoPedido.nuevo_estado}})</small>
@@ -195,30 +198,6 @@
     </div>
 
     <div class="modal fade" id="modalProducto" tabindex="-1" role="dialog" aria-labelledby="modalProductoLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <form @submit.prevent="guardarProducto">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="modalProductoLabel"><span v-if="modoFormularioProducto === 'crear'">Agregar Nuevo Producto</span><span v-else>Editar Producto: {{ productoEnEdicion.nombreOriginal }}</span></h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="cerrarModalProducto"><span aria-hidden="true">&times;</span></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form-group"><label for="nombreProductoModal">Nombre</label><input type="text" class="form-control" id="nombreProductoModal" v-model="productoEnEdicion.nombre" required></div>
-                        <div class="form-group"><label for="descripcionProductoModal">Descripcion</label><textarea class="form-control" id="descripcionProductoModal" v-model="productoEnEdicion.descripcion" rows="3"></textarea></div>
-                        <div class="form-group"><label for="precioProductoModal">Precio</label><input type="number" step="0.01" class="form-control" id="precioProductoModal" v-model.number="productoEnEdicion.precio" required></div>
-                        <div class="form-group"><label for="stockProductoModal">Stock</label><input type="number" class="form-control" id="stockProductoModal" v-model.number="productoEnEdicion.stock" required min="0"></div>
-                        <div class="form-group">
-                            <label for="imagenProductoModal">Imagen del Producto</label><input type="file" class="form-control-file" id="imagenProductoModal" @change="handleImagenProductoUpload" accept="image/*">
-                            <div v-if="imagenProductoPreviewUrl" class="mt-2"><p>Vista previa de imagen:</p><img :src="imagenProductoPreviewUrl" alt="Vista previa de imagen" style="max-height: 100px; border: 1px solid #ddd;"></div>
-                            <div v-else-if="modoFormularioProducto === 'editar' && productoEnEdicion.imagen_url && !imagenProductoFile" class="mt-2"><p>Imagen actual:</p><img :src="productoEnEdicion.imagen_url" alt="Imagen actual" style="max-height: 100px; border: 1px solid #ddd;"></div>
-                        </div>
-                    </div><div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal" @click="cerrarModalProducto">Cancelar</button>
-                        <button type="submit" class="btn btn-primary"><span v-if="modoFormularioProducto === 'crear'">Guardar Producto</span><span v-else>Actualizar Producto</span></button>
-                    </div>
-                </form>
-            </div>
-        </div>
     </div>
 
     <div v-if="apiError" class="alert alert-danger mt-3"> Error general de API: {{ apiError }} </div>
@@ -231,7 +210,8 @@
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    function getCookie(name) {
+    // ... (getCookie, DEFAULT_PLACEHOLDERS, y el resto del script de Vue sin cambios) ...
+    function getCookie(name) { /* ... */
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
             const cookies = document.cookie.split(';');
@@ -279,7 +259,7 @@
             ],
             procesandoEstado: {}
         },
-        computed: {
+        computed: { /* ... (sin cambios) ... */
             apiAuthHeaders() {
                 const headers = { 'Authorization': `Token ${this.token}` };
                 if (csrftoken) { headers['X-CSRFToken'] = csrftoken; }
@@ -334,36 +314,37 @@
             console.log("Opciones de estado en mounted:", JSON.parse(JSON.stringify(this.opcionesEstadoPedido)));
         },
         methods: {
-            selectTab(tabName) {
+            // ... (todos los metodos existentes se mantienen) ...
+            selectTab(tabName) { /* ... */
                 this.activeTab = tabName;
                 if (tabName === 'pedidos' && this.negocioSeleccionadoId) {
                     this.cargarPedidosDelNegocio();
                 }
             },
-            irACrearNegocio() {
+            irACrearNegocio() { /* ... */
                 this.prepararNuevoNegocio();
                 this.selectTab('formularioNegocio');
             },
-            irAEditarNegocio(negocio) {
+            irAEditarNegocio(negocio) { /* ... */
                 this.negocioEnEdicion = { ...negocio, nombreOriginal: negocio.nombre };
                 this.logoFile = null;
                 this.logoPreviewUrl = negocio.logo_url || '';
                 this.modoFormularioNegocio = 'editar';
                 this.selectTab('formularioNegocio');
             },
-            cancelarFormularioNegocio() {
+            cancelarFormularioNegocio() { /* ... */
                 this.prepararNuevoNegocio();
                 this.selectTab('lista');
             },
-            setDefaultLogo(event) {
+            setDefaultLogo(event) { /* ... */
                 event.target.src = DEFAULT_PLACEHOLDER_LOGO;
                 event.target.onerror = null;
             },
-            setDefaultImagenProducto(event) {
+            setDefaultImagenProducto(event) { /* ... */
                 event.target.src = this.defaultProductoImagen;
                 event.target.onerror = null;
             },
-            mostrarError(mensaje, tipo = 'general') {
+            mostrarError(mensaje, tipo = 'general') { /* ... */
                 if (tipo === 'productos') { this.apiErrorProductos = mensaje; }
                 else if (tipo === 'pedidosNegocio') { this.apiErrorPedidosNegocio = mensaje; }
                 else { this.apiError = mensaje; }
@@ -374,7 +355,7 @@
                     else this.apiError = null;
                 }, 7000);
             },
-            async cargarNegociosUsuario() {
+            async cargarNegociosUsuario() { /* ... */
                 this.loadingNegocios = true; this.apiError = null;
                 try {
                     const response = await fetch('/api/negocios/', { headers: this.apiAuthHeaders });
@@ -385,22 +366,22 @@
                 } catch (error) { this.mostrarError(error.message); }
                 finally { this.loadingNegocios = false; }
             },
-            prepararNuevoNegocio() {
+            prepararNuevoNegocio() { /* ... */
                 this.negocioEnEdicion = { id: null, nombre: '', descripcion: '', direccion: '', logo_url: '', nombreOriginal: '' };
                 this.logoFile = null; this.logoPreviewUrl = ''; this.modoFormularioNegocio = 'crear';
                 const logoInput = document.getElementById('logoNegocioForm');
                 if (logoInput) logoInput.value = null;
             },
-            cancelarEdicionNegocio() {
+            cancelarEdicionNegocio() { /* ... */
                 this.prepararNuevoNegocio();
                 this.selectTab('lista');
             },
-            handleLogoUpload(event) {
+            handleLogoUpload(event) { /* ... */
                 const file = event.target.files[0];
                 if (file) { this.logoFile = file; this.logoPreviewUrl = URL.createObjectURL(file); }
                 else { this.logoFile = null; this.logoPreviewUrl = ''; }
             },
-            async guardarNegocio() {
+            async guardarNegocio() { /* ... */
                 this.apiError = null;
                 const esCrear = this.modoFormularioNegocio === 'crear';
                 const url = esCrear ? '/api/negocios/' : `/api/negocios/${this.negocioEnEdicion.id}/`;
@@ -431,7 +412,7 @@
                     this.cargarPedidosDelNegocio();
                 }
             },
-            async cargarProductosDelNegocioSeleccionado() {
+            async cargarProductosDelNegocioSeleccionado() { /* ... */
                 if (!this.negocioSeleccionadoId) { this.productosNegocioSeleccionado = []; return; }
                 this.loadingProductos = true; this.apiErrorProductos = null;
                 try {
@@ -446,7 +427,7 @@
                 } catch (error) { this.mostrarError(error.message, 'productos'); this.productosNegocioSeleccionado = []; }
                 finally { this.loadingProductos = false; }
             },
-            abrirModalProducto(producto = null) {
+            abrirModalProducto(producto = null) { /* ... */
                 this.apiErrorProductos = null;
                 if (producto) { this.productoEnEdicion = { ...producto, nombreOriginal: producto.nombre, imagen: null, imagen_url: producto.imagen_url || '' }; this.modoFormularioProducto = 'editar'; }
                 else { this.productoEnEdicion = { id: null, nombre: '', descripcion: '', precio: null, stock: null, imagen: null, imagen_url: '', nombreOriginal: '' }; this.modoFormularioProducto = 'crear'; }
@@ -456,13 +437,13 @@
                 if (typeof $ !== 'undefined' && $('#modalProducto').modal) { $('#modalProducto').modal('show'); }
                 else { console.error("jQuery o Bootstrap modal no estan disponibles para #modalProducto"); }
             },
-            cerrarModalProducto() { if (typeof $ !== 'undefined' && $('#modalProducto').modal) { $('#modalProducto').modal('hide'); } },
-            handleImagenProductoUpload(event) {
+            cerrarModalProducto() { /* ... */ if (typeof $ !== 'undefined' && $('#modalProducto').modal) { $('#modalProducto').modal('hide'); } },
+            handleImagenProductoUpload(event) { /* ... */
                 const file = event.target.files[0];
                 if (file) { this.imagenProductoFile = file; this.imagenProductoPreviewUrl = URL.createObjectURL(file); }
                 else { this.imagenProductoFile = null; this.imagenProductoPreviewUrl = ''; }
             },
-            async guardarProducto() {
+            async guardarProducto() { /* ... */
                 if (!this.negocioSeleccionadoId) { this.mostrarError("Por favor, selecciona un negocio primero.", 'productos'); return; }
                 this.apiErrorProductos = null;
                 const esCrear = this.modoFormularioProducto === 'crear';
@@ -487,7 +468,7 @@
                     this.cerrarModalProducto(); this.cargarProductosDelNegocioSeleccionado();
                 } catch (error) { this.mostrarError(`Error guardando producto: ${error.message}`, 'productos'); }
             },
-            async eliminarProducto(productoId, productoNombre) {
+            async eliminarProducto(productoId, productoNombre) { /* ... */
                 if (!confirm(`¿Estas seguro de que quieres eliminar el producto "${productoNombre}"?`)) return;
                 this.apiErrorProductos = null;
                 try {

@@ -16,7 +16,7 @@
 
         <div class="row" v-if="productos.length > 0">
             <div class="col-md-4 mb-4" v-for="producto in productos" :key="producto.id">
-                <div class="card h-100">
+                <div class="card h-100" style="border-radius: 0px 0px 20px 20px;">
                     {# h-100 para igualar altura de tarjetas #}
                     {# --- MOSTRAR IMAGEN DEL PRODUCTO --- #}
                     <img :src="producto.imagen_url"
@@ -25,13 +25,13 @@
                          style="height: 200px; object-fit: cover;"
                          onerror="this.onerror=null; this.src='https://placehold.co/300x200/EFEFEF/AAAAAA?text=Imagen+No+Disponible';">
 
-                    <div class="card-body d-flex flex-column">
+                    <div class="card-body d-flex flex-column" style="border-radius: 0px 0px 20px 20px; padding: 20px;">
                         {# d-flex y flex-column para empujar boton abajo #}
                         <h5 class="card-title" v-text="producto.nombre"></h5>
                         <p class="card-text" v-text="producto.descripcion"></p>
                         <p class="card-text"><strong>Precio:</strong> <span v-text="producto.precio ? '$' + parseFloat(producto.precio).toFixed(2) : 'N/A'"></span></p>
                         <!-- <button type="button" @click="agregarAlCarrito(producto)" class="btn btn-success mt-auto">Agregar al Carrito</button>  -->
-                        <button type="button" @click="agregarAlCarrito(producto)" class="btn btn-success mt-auto btProduct d-block mx-auto" class="btn btn-primary mt-auto btProduct d-block mx-auto">Ver Productos</button>
+                        <button type="button" @click="agregarAlCarrito(producto)" class="btn btn-success mt-auto btProduct d-block mx-auto" class="btn btn-primary mt-auto btProduct d-block mx-auto">Agregar a carrito</button>
                         {# mt-auto para empujar al fondo #}
                     </div>
                 </div>

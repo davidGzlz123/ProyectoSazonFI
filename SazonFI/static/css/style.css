@@ -1,154 +1,101 @@
-﻿/* Colores usados en toda la pagina */
+﻿/* Colores usados en toda la página */
 :root {
-    --fondoNavFot: #E2715B; /* Naranja/Rojo para la navbar */
-    --fondo: #FFF8E0; /* Crema para el fondo del body */
-    --textoNav: #FFFFFF; /* Blanco para el texto de la navbar, para buen contraste */
-    --textoNavHover: #f0f0f0; /* Un blanco un poco más tenue para el hover */
+    --fondoNavFot: #E2715B;
+    --fondo: #FFF8E0;
 }
 
-body {
+body{
     background-color: var(--fondo);
-    font-family: sans-serif; /* Considera añadir una fuente base */
 }
 
 /* ------------------- NAVBAR ---------------- */
-/* Estilos si usas <nav class="navbar navbar-expand-lg navbar-custom"> */
 .navbar-custom {
     background-color: var(--fondoNavFot);
     width: 100%;
     margin: 0;
-    padding: 10px 30px; /* Ajuste de padding para mejor apariencia */
+    padding: 0 30px 10px 30px;
     box-sizing: border-box;
 }
 
-    .navbar-custom .navbar-brand {
-        color: var(--textoNav);
-        font-weight: bold;
-    }
+.search-bar {
+    display: flex;
+    align-items: center;
+    background-color: #D9D9D9;
+    padding: 0 12px;     
+    height: 40px;        
+    border-radius: 20px; 
+    box-sizing: border-box;
+    width: 500px;
+    margin: 0; 
+} 
 
-        .navbar-custom .navbar-brand:hover {
-            color: var(--textoNavHover);
-        }
-
-    .navbar-custom .nav-link {
-        color: var(--textoNav) !important; /* !important para asegurar que se aplique sobre estilos de Bootstrap */
-        padding: 0.5rem 1rem; /* Padding estándar de Bootstrap para nav-links */
-        font-weight: 500;
-    }
-
-        .navbar-custom .nav-link:hover,
-        .navbar-custom .nav-link:focus {
-            color: var(--textoNavHover) !important;
-        }
-
-    /* Para el botón de hamburguesa en pantallas pequeñas sobre fondo oscuro */
-    .navbar-custom .navbar-toggler {
-        border-color: rgba(255, 255, 255, 0.3); /* Borde más visible */
-    }
-
-    .navbar-custom .navbar-toggler-icon {
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255, 255, 255, 0.8)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
-    }
-
-    /* Asegurar que los items de la navbar sean visibles si el JS los muestra */
-    .navbar-custom .navbar-nav .nav-item {
-        /* No es necesario display: block !important; aqui si el JS ya lo hace en el style del elemento.
-       Pero si el problema persiste, podria ser una opcion de ultimo recurso para un ID especifico. */
-    }
-
-
-    /* Barra de busqueda (si la usas dentro de .navbar-custom) */
-    .navbar-custom .search-bar {
-        display: flex;
-        align-items: center;
-        background-color: #FFFFFF; /* Fondo blanco para contraste */
-        padding: 0 12px;
-        height: 40px;
-        border-radius: 20px;
-        box-sizing: border-box;
-        width: 500px; /* Considera hacerlo más responsivo, ej. max-width */
-        margin: 0 auto; /* Para centrarla si es el unico elemento o si esta en un flex container */
-    }
-
-    .navbar-custom .search-icon {
-        flex-shrink: 0;
-        width: 20px; /* Ajustado */
-        height: 20px; /* Ajustado */
-        margin-right: 8px;
-        /* Considera un SVG de lupa que puedas colorear o uno de FontAwesome */
-    }
-
-    .navbar-custom .search-input {
-        flex: 1;
-        border: none;
-        outline: none;
-        background: transparent;
-        font-size: 1rem; /* Ajustado */
-        color: #333; /* Color de texto oscuro para contraste con fondo blanco */
-    }
-
-.navbar-custom .search-input::placeholder {
-            color: #999; /* Placeholder más visible */
-        }
-
-
-
-/* ------------------- FOOTER ---------------- */
-footer {
-    background-color: var(--fondoNavFot);
-    color: var(--textoNav);
-    padding: 15px 0; /* Añadido padding */
+/* Lupa dentro de la barra */
+.search-icon {
+    flex-shrink: 0;      
+    width: 24px;         
+    height: 24px;
+    margin-right: 8px;   
 }
 
-    footer p {
-        margin-bottom: 0;
-    }
+/* Input sin bordes */
+.search-input {
+    flex: 1; 
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 1.2rem;
+    color: #555;
+}
+
+.search-input::placeholder {
+    color: #00000021;
+}
+
+/* ------------------- FOOTER ---------------- */
+footer{
+    background-color: var(--fondoNavFot);
+}
 
 /* ---------------- LOGIN --------------- */
-.loginInfo {
+.loginInfo{
     padding: 20px;
 }
 
-/* Considera hacer esta clase mas especifica, ej. .login-card-body */
-.card-body.login-card-custom {
-    background-color: rgba(217, 217, 217, 0.471);
+.card-body{
+    background-color: rgba(217, 217, 217, 0.709);
     border-radius: 20px;
-    padding: 25px 30px; /* Ajustado padding */
+    padding: 15px 20px 0px 20px;
 }
 
-.btLogin {
-    background-color: #E2715B70; /* Color con transparencia */
+.btLogin{
+    background-color: #E2715B70;
     border-radius: 20px;
     color: #E2715B;
     border: none;
     margin: 10px 0px 10px 0px;
     width: 150px;
-    padding: 10px 0; /* Añadido padding vertical */
-    font-weight: bold;
 }
 
-    .btLogin:hover {
-        background-color: var(--fondoNavFot);
-        color: var(--textoNav);
-    }
+.btLogin:hover{
+    background-color: var(--fondoNavFot);
+}
 
-    .btLogin:focus,
-    .btLogin:active {
-        background-color: #E2715B70 !important;
-        color: #E2715B !important;
-        box-shadow: none !important;
-    }
+.btLogin:focus,
+.btLogin:active {
+  background-color: #E2715B70 !important;
+  box-shadow: none !important;
+}
 
-.form-control { /* Estilo global para form-control, puede afectar otros inputs */
+.form-control{
     background-color: #E2715B30;
     border: none;
     border-radius: 20px;
 }
 
-    .form-control:focus {
-        background-color: #E2715B30;
-        box-shadow: 0 0 0 0.2rem #E2715B60;
-    }
+.form-control:focus {
+  background-color: #E2715B30;        /* blanco */
+  box-shadow: 0 0 0 0.2rem #E2715B60; /* glow azul */
+}
 
 /* ------------HOME VIEW------------------- */
 .custom-btn{
@@ -169,58 +116,42 @@ button.custom-btn:active {
     color: white;
     background-color: var(--fondoNavFot);
 }
+
+
 .div-local{
     border-radius: 20px;
 }
 
-/* Estilos para las tarjetas de negocio/producto */
-.card.h-100 { /* Aplicar a las tarjetas que deben tener misma altura */
-    display: flex;
-    flex-direction: column;
+.cardIMG{
+    height: 180px; 
+    object-fit: cover; 
+    border: 1px solid #D9D9D931; 
+    background-color: #f8f9fa; 
+    border-radius: 20px 20px 0px 0px;
 }
 
-.card .card-img-top { /* Estilos para las imagenes de las tarjetas */
-    border-radius: 20px 20px 0 0; /* Redondear solo esquinas superiores si es card-img-top */
+.localInfo{
+    background-color: #e2725bbe; 
+    border-radius: 0px 0px 20px 20px;
+    padding-bottom: 20px;
 }
 
-.card .card-body { /* Estilos para el cuerpo de las tarjetas */
-    background-color: #e2725bbe; /* Tu color con transparencia */
-    border-radius: 0 0 20px 20px; /* Redondear solo esquinas inferiores */
-    padding: 1.25rem; /* Padding estandar de Bootstrap */
-    /* flex-grow: 1; ya lo hace d-flex flex-column */
-}
-
-.card .card-title {
-    color: #333; /* Color oscuro para el titulo */
-}
-
-.card .card-text {
-    color: #555; /* Color un poco mas claro para el texto */
-    flex-grow: 1; /* Para que el texto ocupe espacio y empuje el boton abajo */
-}
-
-
-.btProduct { /* Boton "Ver Productos" */
-    background-color: #D9D9D960; /* Un poco mas de opacidad */
-    border-radius: 20px;
-    color: #444; /* Color de texto mas oscuro */
+.btProduct{
+    background-color: #c8c8c8;
+    border-radius: 10px;
+    color: rgba(0, 0, 0, 0.517);
     border: none;
-    width: auto; /* Ancho automatico segun contenido */
-    padding: 8px 15px; /* Padding ajustado */
-    font-weight: 500;
-    /* mt-auto ya esta en la clase del boton en el HTML */
+    width: 150px;
 }
 
-    .btProduct:hover {
-        background-color: var(--fondoNavFot);
-        color: var(--textoNav);
-    }
+.btProduct:hover{
+    background-color: var(--fondoNavFot);
+}
 
 .btProduct:focus,
 .btProduct:active {
-    background-color: #E2715B70 !important;
-    color: #444 !important;
-    box-shadow: none !important;
+  background-color: #E2715B70 !important;
+  box-shadow: none !important;
 }
 
 /* -------------------CARRITO--------------------- */

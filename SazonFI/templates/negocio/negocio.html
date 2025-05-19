@@ -7,16 +7,16 @@
 
     <ul class="nav nav-tabs mb-3" id="panelNegocioTabs" role="tablist">
         <li class="nav-item" role="presentation">
-            <a class="nav-link" :class="{ active: activeTab === 'lista' }" @click.prevent="selectTab('lista')" id="lista-tab" data-toggle="tab" href="#lista" role="tab" aria-controls="lista" aria-selected="true">Mis Negocios y Productos</a>
+            <a class="nav-link" :class="{ active: activeTab === 'lista' }" @click.prevent="selectTab('lista')" href="#lista" role="tab" aria-controls="lista" aria-selected="true">Mis Negocios y Productos</a>
         </li>
         <li class="nav-item" role="presentation">
-            <a class="nav-link" :class="{ active: activeTab === 'formularioNegocio' }" @click.prevent="selectTab('formularioNegocio')" id="form-negocio-tab" data-toggle="tab" href="#formularioNegocio" role="tab" aria-controls="formularioNegocio" aria-selected="false">
+            <a class="nav-link" :class="{ active: activeTab === 'formularioNegocio' }" @click.prevent="selectTab('formularioNegocio')" href="#formularioNegocio" role="tab" aria-controls="formularioNegocio" aria-selected="false">
                 <span v-if="modoFormularioNegocio === 'crear'">Crear Negocio</span>
                 <span v-else>Editar Negocio</span>
             </a>
         </li>
         <li class="nav-item" role="presentation">
-            <a class="nav-link" :class="{ active: activeTab === 'pedidos' }" @click.prevent="selectTab('pedidos')" id="pedidos-tab" data-toggle="tab" href="#pedidos" role="tab" aria-controls="pedidos" aria-selected="false">Pedidos</a>
+            <a class="nav-link" :class="{ active: activeTab === 'pedidos' }" @click.prevent="selectTab('pedidos')" href="#pedidos" role="tab" aria-controls="pedidos" aria-selected="false">Gestionar Pedidos</a>
         </li>
     </ul>
 
@@ -26,39 +26,34 @@
             <button class="btn btn-success mb-3" @click="irACrearNegocio">
                 <i class="fas fa-plus"></i> Crear Nuevo Negocio
             </button>
-
             <div v-if="loadingNegocios" class="alert alert-info">Cargando negocios...</div>
             <div v-if="!loadingNegocios && negociosUsuario.length === 0 && !apiError" class="alert alert-warning">
                 No tienes negocios registrados. ¡Crea uno!
             </div>
-
             <div v-if="!loadingNegocios && negociosUsuario.length > 0" class="form-group">
                 <label for="selectNegocio">Seleccionar Negocio para Administrar:</label>
-                <select class="form-control" id="selectNegocio" v-model="negocioSeleccionadoId" @change="cargarProductosDelNegocioSeleccionado">
+                <select class="form-control" id="selectNegocio" v-model="negocioSeleccionadoId" @change="handleNegocioSeleccionado">
                     <option :value="null">Seleccione un negocio</option>
                     <option v-for="negocio in negociosUsuario" :key="negocio.id" :value="negocio.id">
                         <img :src="negocio.logo_url" alt="" style="width: 20px; height: 20px; margin-right: 5px; border-radius: 3px; object-fit: cover;" v-if="negocio.logo_url" @error="setDefaultLogo($event)">
                         <span v-text="negocio.nombre"></span>
                     </option>
                 </select>
-                <button type="button" class="btn btn-sm btn-outline-primary mt-2" 
+                <button type="button" class="btn btn-sm btn-outline-primary mt-2"
                         v-if="negocioActual" @click="irAEditarNegocio(negocioActual)">
                     Editar Negocio Seleccionado (<span v-text="negocioActual.nombre"></span>)
                 </button>
             </div>
-
-            <div v-if="negocioSeleccionadoId && negocioActual">
+            <div v-if="negocioSeleccionadoId && negocioActual && activeTab === 'lista'">
                 <hr>
                 <h3>Productos de: <span v-text="negocioActual.nombre"></span></h3>
                 <button class="btn btn-success mb-3" @click="abrirModalProducto(null)">
                     <i class="fas fa-plus"></i> Agregar Nuevo Producto
                 </button>
-
                 <div v-if="loadingProductos" class="alert alert-info">Cargando productos...</div>
                 <div v-if="!loadingProductos && productosNegocioSeleccionado.length === 0 && !apiErrorProductos" class="alert alert-info">
                     Este negocio aun no tiene productos registrados.
                 </div>
-
                 <table class="table table-striped" v-if="!loadingProductos && productosNegocioSeleccionado.length > 0">
                     <thead>
                         <tr>
@@ -114,7 +109,7 @@
                                 <img :src="logoPreviewUrl" alt="Vista previa del logo" style="max-height: 100px; border: 1px solid #ddd;">
                             </div>
                             <div v-else-if="modoFormularioNegocio === 'editar' && negocioEnEdicion.logo_url && !logoFile" class="mt-2">
-                                 <p>Logo actual:</p>
+                                <p>Logo actual:</p>
                                 <img :src="negocioEnEdicion.logo_url" alt="Logo actual" style="max-height: 100px; border: 1px solid #ddd;">
                             </div>
                         </div>
@@ -129,73 +124,84 @@
         </div>
 
         <div class="tab-pane fade" :class="{ 'show active': activeTab === 'pedidos' }" id="pedidos" role="tabpanel" aria-labelledby="pedidos-tab">
-            <h2>Pedidos Recibidos</h2>
-            <p class="alert alert-info">Esta seccion se implementara mas adelante para mostrar y gestionar los pedidos de tus negocios.</p>
+            <h2>Gestionar Pedidos</h2>
+            <div class="alert alert-secondary my-2" v-if="opcionesEstadoPedido && opcionesEstadoPedido.length > 0">
+                Depuración: Hay <span v-text="opcionesEstadoPedido.length"></span> opciones de estado disponibles.
+                <span v-if="opcionesEstadoPedido[0]">Primera opción (texto via Vue): <span v-text="opcionesEstadoPedido[0].texto"></span></span>
             </div>
-    </div>
+            <div class="alert alert-danger my-2" v-else>
+                Depuración: 'opcionesEstadoPedido' está vacía o no es un array.
+            </div>
 
-    <div class="modal fade" id="modalProducto" tabindex="-1" role="dialog" aria-labelledby="modalProductoLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <form @submit.prevent="guardarProducto">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="modalProductoLabel">
-                            <span v-if="modoFormularioProducto === 'crear'">Agregar Nuevo Producto</span>
-                            <span v-else>Editar Producto: {{ productoEnEdicion.nombreOriginal }}</span>
-                        </h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="cerrarModalProducto">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label for="nombreProducto">Nombre</label>
-                            <input type="text" class="form-control" id="nombreProducto" v-model="productoEnEdicion.nombre" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="descripcionProducto">Descripcion</label>
-                            <textarea class="form-control" id="descripcionProducto" v-model="productoEnEdicion.descripcion" rows="3"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="precioProducto">Precio</label>
-                            <input type="number" step="0.01" class="form-control" id="precioProducto" v-model.number="productoEnEdicion.precio" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="stockProducto">Stock</label>
-                            <input type="number" class="form-control" id="stockProducto" v-model.number="productoEnEdicion.stock" required min="0">
-                        </div>
-                        <div class="form-group">
-                            <label for="imagenProducto">Imagen del Producto</label>
-                            <input type="file" class="form-control-file" id="imagenProducto" @change="handleImagenProductoUpload" accept="image/*">
-                            <div v-if="imagenProductoPreviewUrl" class="mt-2">
-                                <p>Vista previa de imagen:</p>
-                                <img :src="imagenProductoPreviewUrl" alt="Vista previa de imagen" style="max-height: 100px; border: 1px solid #ddd;">
-                            </div>
-                             <div v-else-if="modoFormularioProducto === 'editar' && productoEnEdicion.imagen_url && !imagenProductoFile" class="mt-2">
-                                 <p>Imagen actual:</p>
-                                <img :src="productoEnEdicion.imagen_url" alt="Imagen actual" style="max-height: 100px; border: 1px solid #ddd;">
-                            </div>
+            <div v-if="!negocioSeleccionadoId" class="alert alert-info">
+                Por favor, selecciona un negocio de la pestaña "Mis Negocios y Productos" para ver sus pedidos.
+            </div>
+            <div v-if="negocioSeleccionadoId && negocioActual">
+                <h3>Pedidos para: <span v-text="negocioActual.nombre"></span></h3>
+
+                <div v-if="loadingPedidosNegocio" class="alert alert-info">Cargando pedidos del negocio...</div>
+                <div v-if="apiErrorPedidosNegocio" class="alert alert-danger">{{ apiErrorPedidosNegocio }}</div>
+
+                <div v-if="!loadingPedidosNegocio && itemsPedidoDelNegocioAgrupados.length === 0 && !apiErrorPedidosNegocio" class="alert alert-secondary">
+                    No hay pedidos que contengan productos de este negocio.
+                </div>
+
+                <div v-for="grupoPedido in itemsPedidoDelNegocioAgrupados" :key="grupoPedido.pedido_id" class="card mb-3">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span>
+                            Pedido #<strong v-text="grupoPedido.pedido_id"></strong> - Cliente: <strong v-text="grupoPedido.cliente_nombre"></strong>
+                            <small class="d-block text-muted">Fecha: <span v-text="formatDate(grupoPedido.pedido_creado_en)"></span></small>
+                        </span>
+                        <div>
+                            Estado Actual: <strong :class="estadoClase(grupoPedido.pedido_estado)" v-text="grupoPedido.pedido_estado"></strong>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal" @click="cerrarModalProducto">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">
-                            <span v-if="modoFormularioProducto === 'crear'">Guardar Producto</span>
-                            <span v-else>Actualizar Producto</span>
-                        </button>
+                    <div class="card-body">
+                        <h6>Items de este negocio en el pedido:</h6>
+                        <ul class="list-group list-group-flush">
+                            <li v-for="item in grupoPedido.items" :key="item.id" class="list-group-item">
+                                <img :src="item.producto.imagen_url || defaultProductoImagen"
+                                     :alt="item.nombre_producto"
+                                     style="width: 40px; height: 40px; object-fit: cover; margin-right: 10px; border-radius:3px;"
+                                     @error="setDefaultImagenProducto($event)">
+                                <span v-text="item.cantidad"></span> x <span v-text="item.nombre_producto"></span>
+                                (Precio Unit.: <span v-text="item.precio_unitario_pedido ? '$' + parseFloat(item.precio_unitario_pedido).toFixed(2) : 'N/A'"></span>)
+                            </li>
+                        </ul>
                     </div>
-                </form>
+                    <div class="card-footer">
+                        <div class="form-inline">
+                            <label :for="'estado-pedido-' + grupoPedido.pedido_id" class="mr-2">Cambiar Estado del Pedido:</label>
+                            <select :id="'estado-pedido-' + grupoPedido.pedido_id" class="form-control form-control-sm mr-2"
+                                    v-model="grupoPedido.nuevo_estado"
+                                    @change="logNuevoEstado(grupoPedido)">
+                                <option :value="null" disabled>-- Selecciona un estado --</option>
+                                {# CAMBIO AQUÍ: Usar un
+                                <span> con v-text dentro de
+                                <option> #}
+                                <option v-for="estadoOp in opcionesEstadoPedido" :key="estadoOp.valor" :value="estadoOp.valor">
+                                    <span v-text="estadoOp.texto"></span>
+                                </option>
+                            </select>
+                            <small class="mr-2">(Actual: {{grupoPedido.pedido_estado}}, Nuevo: {{grupoPedido.nuevo_estado}})</small>
+
+                            <button class="btn btn-sm btn-primary" @click="actualizarEstadoPedido(grupoPedido.pedido_id, grupoPedido.nuevo_estado)"
+                                    :disabled="isActualizarEstadoDisabled(grupoPedido)">
+                                <span v-if="procesandoEstado[grupoPedido.pedido_id]" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                Actualizar Estado
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    
-    <div v-if="apiError" class="alert alert-danger mt-3">
-        Error general de API: {{ apiError }}
-    </div>
-    <div v-if="apiErrorProductos" class="alert alert-danger mt-3">
-        Error en productos: {{ apiErrorProductos }}
+
+    <div class="modal fade" id="modalProducto" tabindex="-1" role="dialog" aria-labelledby="modalProductoLabel" aria-hidden="true">
     </div>
 
+    <div v-if="apiError" class="alert alert-danger mt-3"> Error general de API: {{ apiError }} </div>
+    <div v-if="apiErrorProductos" class="alert alert-danger mt-3"> Error en productos: {{ apiErrorProductos }} </div>
 </div>
 {% endblock %}
 
@@ -203,9 +209,9 @@
 <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
-
 <script>
-    function getCookie(name) { /* ... (tu funcion getCookie) ... */ 
+    // ... (getCookie, DEFAULT_PLACEHOLDERS, y el resto del script de Vue sin cambios) ...
+    function getCookie(name) { /* ... */
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
             const cookies = document.cookie.split(';');
@@ -223,295 +229,346 @@
     const DEFAULT_PLACEHOLDER_LOGO = 'https://placehold.co/300x180/EFEFEF/AAAAAA?text=Sin+Logo';
     const DEFAULT_PLACEHOLDER_PRODUCTO = 'https://placehold.co/300x200/EFEFEF/AAAAAA?text=Sin+Imagen';
 
-
     const appNegocio = new Vue({
         el: '#app-negocio',
         data: {
-            activeTab: 'lista', // Pestaña activa por defecto: 'lista', 'formularioNegocio', 'pedidos'
+            activeTab: 'lista',
             negociosUsuario: [],
             negocioSeleccionadoId: null,
             productosNegocioSeleccionado: [],
-            
             negocioEnEdicion: { id: null, nombre: '', descripcion: '', direccion: '', logo_url: '', nombreOriginal: '' },
-            modoFormularioNegocio: 'crear', 
-            logoFile: null, 
-            logoPreviewUrl: '', 
-
+            modoFormularioNegocio: 'crear',
+            logoFile: null,
+            logoPreviewUrl: '',
             productoEnEdicion: { id: null, nombre: '', descripcion: '', precio: null, stock: null, imagen_url: '', nombreOriginal: '' },
             modoFormularioProducto: 'crear',
-            imagenProductoFile: null, 
-            imagenProductoPreviewUrl: '', 
-
+            imagenProductoFile: null,
+            imagenProductoPreviewUrl: '',
             token: localStorage.getItem('token'),
             loadingNegocios: false,
             loadingProductos: false,
             apiError: null,
-            apiErrorProductos: null 
+            apiErrorProductos: null,
+            itemsPedidoDelNegocio: [],
+            loadingPedidosNegocio: false,
+            apiErrorPedidosNegocio: null,
+            opcionesEstadoPedido: [
+                { valor: 'PENDIENTE', texto: 'Pendiente' }, { valor: 'PROCESANDO', texto: 'Procesando' },
+                { valor: 'ENVIADO', texto: 'Enviado' }, { valor: 'COMPLETADO', texto: 'Completado' },
+                { valor: 'CANCELADO', texto: 'Cancelado' }
+            ],
+            procesandoEstado: {}
         },
         computed: { /* ... (sin cambios) ... */
-            apiAuthHeaders() { 
-                const headers = {
-                    'Authorization': `Token ${this.token}`
-                };
-                if (csrftoken) {
-                    headers['X-CSRFToken'] = csrftoken;
-                }
+            apiAuthHeaders() {
+                const headers = { 'Authorization': `Token ${this.token}` };
+                if (csrftoken) { headers['X-CSRFToken'] = csrftoken; }
                 return headers;
             },
             negocioActual() {
                 if (!this.negocioSeleccionadoId) return null;
                 return this.negociosUsuario.find(n => n.id === this.negocioSeleccionadoId);
+            },
+            itemsPedidoDelNegocioAgrupados() {
+                if (!this.itemsPedidoDelNegocio.length) return [];
+                const grupos = {};
+                this.itemsPedidoDelNegocio.forEach(item => {
+                    if (!item.pedido) {
+                        console.warn("ItemPedido sin objeto 'pedido' asociado:", item);
+                        return;
+                    }
+                    const pedidoId = item.pedido.id;
+                    if (!grupos[pedidoId]) {
+                        grupos[pedidoId] = {
+                            pedido_id: pedidoId,
+                            cliente_nombre: item.pedido.usuario ? item.pedido.usuario.username : 'N/A',
+                            pedido_estado: item.pedido.estado,
+                            pedido_creado_en: item.pedido.creado_en,
+                            nuevo_estado: item.pedido.estado,
+                            items: []
+                        };
+                    }
+                    const productoConFallback = item.producto || { nombre: 'Producto no disponible', imagen_url: this.defaultProductoImagen };
+                    const itemConProductoProcesado = {
+                        ...item,
+                        producto: {
+                            ...productoConFallback,
+                            imagen_url: productoConFallback.imagen_url || this.defaultProductoImagen
+                        }
+                    };
+                    if (item.negocio && item.negocio.id === this.negocioSeleccionadoId) {
+                        grupos[pedidoId].items.push(itemConProductoProcesado);
+                    }
+                });
+                return Object.values(grupos).filter(g => g.items.length > 0).sort((a, b) => new Date(b.pedido_creado_en) - new Date(a.pedido_creado_en));
             }
         },
-        mounted() { /* ... (sin cambios) ... */
+        mounted() {
             if (!this.token) {
                 alert("Por favor, inicia sesion para administrar tus negocios.");
-                window.location.href = "{% url 'login' %}"; 
+                window.location.href = "{% url 'login' %}";
                 return;
             }
-            // this.prepararNuevoNegocio(); // No es necesario aqui si el tab por defecto es 'lista'
+            this.selectTab('lista');
             this.cargarNegociosUsuario();
-            this.selectTab('lista'); // Asegurar que la pestaña correcta este activa al inicio
+            console.log("Opciones de estado en mounted:", JSON.parse(JSON.stringify(this.opcionesEstadoPedido)));
         },
         methods: {
-            selectTab(tabName) {
+            // ... (todos los metodos existentes se mantienen) ...
+            selectTab(tabName) { /* ... */
                 this.activeTab = tabName;
-                // Si cambiamos a la pestaña de lista, reseteamos el formulario de negocio a 'crear'
-                // a menos que se haya llegado alli desde un boton de "editar"
-                if (tabName === 'lista' && this.modoFormularioNegocio === 'editar') {
-                    // Opcional: podrias querer resetear el formulario de negocio aqui
-                    // this.prepararNuevoNegocio();
+                if (tabName === 'pedidos' && this.negocioSeleccionadoId) {
+                    this.cargarPedidosDelNegocio();
                 }
             },
-            irACrearNegocio() {
-                this.prepararNuevoNegocio(); // Prepara el formulario para un nuevo negocio
-                this.selectTab('formularioNegocio'); // Cambia a la pestaña del formulario
-            },
-            irAEditarNegocio(negocio) {
-                this.negocioEnEdicion = { ...negocio, nombreOriginal: negocio.nombre }; 
-                this.logoFile = null; 
-                this.logoPreviewUrl = negocio.logo_url || ''; // Mostrar logo actual si existe
-                this.modoFormularioNegocio = 'editar';
-                this.selectTab('formularioNegocio'); // Cambia a la pestaña del formulario
-            },
-            cancelarFormularioNegocio() {
+            irACrearNegocio() { /* ... */
                 this.prepararNuevoNegocio();
-                this.selectTab('lista'); // Volver a la lista de negocios
+                this.selectTab('formularioNegocio');
             },
-            // ... (setDefaultLogo, setDefaultImagenProducto, mostrarError, cargarNegociosUsuario sin cambios)
-            setDefaultLogo(event) { /* ... (sin cambios) ... */
+            irAEditarNegocio(negocio) { /* ... */
+                this.negocioEnEdicion = { ...negocio, nombreOriginal: negocio.nombre };
+                this.logoFile = null;
+                this.logoPreviewUrl = negocio.logo_url || '';
+                this.modoFormularioNegocio = 'editar';
+                this.selectTab('formularioNegocio');
+            },
+            cancelarFormularioNegocio() { /* ... */
+                this.prepararNuevoNegocio();
+                this.selectTab('lista');
+            },
+            setDefaultLogo(event) { /* ... */
                 event.target.src = DEFAULT_PLACEHOLDER_LOGO;
                 event.target.onerror = null;
             },
-            setDefaultImagenProducto(event) { /* ... (sin cambios) ... */
-                event.target.src = DEFAULT_PLACEHOLDER_PRODUCTO;
+            setDefaultImagenProducto(event) { /* ... */
+                event.target.src = this.defaultProductoImagen;
                 event.target.onerror = null;
             },
-            mostrarError(mensaje, tipo = 'general') { /* ... (sin cambios) ... */
-                if (tipo === 'productos') {
-                    this.apiErrorProductos = mensaje;
-                } else {
-                    this.apiError = mensaje;
-                }
-                console.error(`Error (${tipo}):`, mensaje); 
-                setTimeout(() => { 
+            mostrarError(mensaje, tipo = 'general') { /* ... */
+                if (tipo === 'productos') { this.apiErrorProductos = mensaje; }
+                else if (tipo === 'pedidosNegocio') { this.apiErrorPedidosNegocio = mensaje; }
+                else { this.apiError = mensaje; }
+                console.error(`Error (${tipo}):`, mensaje);
+                setTimeout(() => {
                     if (tipo === 'productos') this.apiErrorProductos = null;
+                    else if (tipo === 'pedidosNegocio') this.apiErrorPedidosNegocio = null;
                     else this.apiError = null;
                 }, 7000);
             },
-            async cargarNegociosUsuario() { /* ... (sin cambios) ... */
-                this.loadingNegocios = true;
-                this.apiError = null;
+            async cargarNegociosUsuario() { /* ... */
+                this.loadingNegocios = true; this.apiError = null;
                 try {
                     const response = await fetch('/api/negocios/', { headers: this.apiAuthHeaders });
-                    if (!response.ok) {
-                        const errData = await response.json().catch(() => null);
-                        throw new Error(errData?.detail || `Error ${response.status}: No se pudieron cargar los negocios.`);
-                    }
+                    if (!response.ok) { const errData = await response.json().catch(() => null); throw new Error(errData?.detail || `Error ${response.status}: No se pudieron cargar los negocios.`); }
                     const data = await response.json();
                     let fetchedNegocios = Array.isArray(data) ? data : data.results || [];
-                    this.negociosUsuario = fetchedNegocios.map(n => ({
-                        ...n,
-                        logo_url: n.logo_url || DEFAULT_PLACEHOLDER_LOGO 
-                    }));
-                } catch (error) {
-                    this.mostrarError(error.message);
-                } finally {
-                    this.loadingNegocios = false;
-                }
+                    this.negociosUsuario = fetchedNegocios.map(n => ({ ...n, logo_url: n.logo_url || DEFAULT_PLACEHOLDER_LOGO }));
+                } catch (error) { this.mostrarError(error.message); }
+                finally { this.loadingNegocios = false; }
             },
-            prepararNuevoNegocio() { 
+            prepararNuevoNegocio() { /* ... */
                 this.negocioEnEdicion = { id: null, nombre: '', descripcion: '', direccion: '', logo_url: '', nombreOriginal: '' };
-                this.logoFile = null;
-                this.logoPreviewUrl = '';
-                this.modoFormularioNegocio = 'crear';
-                const logoInput = document.getElementById('logoNegocioForm'); // Asegurar que el ID coincida
+                this.logoFile = null; this.logoPreviewUrl = ''; this.modoFormularioNegocio = 'crear';
+                const logoInput = document.getElementById('logoNegocioForm');
                 if (logoInput) logoInput.value = null;
             },
-            // renombrado de seleccionarNegocioParaEdicion a editarNegocioSeleccionado
-            // editarNegocioSeleccionado(negocio) ya esta definido como irAEditarNegocio
-            cancelarEdicionNegocio() { // Este es el que se llama desde el boton "Cancelar Edicion" en el formulario
-                this.prepararNuevoNegocio(); 
-                this.selectTab('lista'); // Volver a la lista
+            cancelarEdicionNegocio() { /* ... */
+                this.prepararNuevoNegocio();
+                this.selectTab('lista');
             },
-            handleLogoUpload(event) { /* ... (sin cambios) ... */
+            handleLogoUpload(event) { /* ... */
                 const file = event.target.files[0];
-                if (file) {
-                    this.logoFile = file;
-                    this.logoPreviewUrl = URL.createObjectURL(file); 
-                } else {
-                    this.logoFile = null;
-                    this.logoPreviewUrl = '';
-                }
+                if (file) { this.logoFile = file; this.logoPreviewUrl = URL.createObjectURL(file); }
+                else { this.logoFile = null; this.logoPreviewUrl = ''; }
             },
-            async guardarNegocio() {
-                // ... (logica de guardarNegocio sin cambios, pero ahora se llama desde la pestaña del formulario)
+            async guardarNegocio() { /* ... */
                 this.apiError = null;
                 const esCrear = this.modoFormularioNegocio === 'crear';
                 const url = esCrear ? '/api/negocios/' : `/api/negocios/${this.negocioEnEdicion.id}/`;
                 const method = esCrear ? 'POST' : 'PUT';
-
                 let formData = new FormData();
                 formData.append('nombre', this.negocioEnEdicion.nombre);
-                formData.append('descripcion', this.negocioEnEdicion.descripcion || ''); 
-                formData.append('direccion', this.negocioEnEdicion.direccion || ''); 
-                if (this.logoFile) {
-                    formData.append('logo', this.logoFile);
-                }
+                formData.append('descripcion', this.negocioEnEdicion.descripcion || '');
+                formData.append('direccion', this.negocioEnEdicion.direccion || '');
+                if (this.logoFile) formData.append('logo', this.logoFile);
                 try {
-                    const headers = { ...this.apiAuthHeaders };
-                    delete headers['Content-Type']; 
+                    const headers = { ...this.apiAuthHeaders }; delete headers['Content-Type'];
                     const response = await fetch(url, { method: method, headers: headers, body: formData });
                     const responseData = await response.json().catch(() => null);
                     if (!response.ok) {
                         let errorMessage = `Error ${response.status} al guardar negocio.`;
-                        if (responseData) {
-                            if (responseData.detail) errorMessage = responseData.detail;
-                            else if (typeof responseData === 'object') errorMessage = JSON.stringify(responseData);
-                            else if (typeof responseData === 'string') errorMessage = responseData;
-                        }
+                        if (responseData) { if (responseData.detail) errorMessage = responseData.detail; else if (typeof responseData === 'object') errorMessage = JSON.stringify(responseData); else if (typeof responseData === 'string') errorMessage = responseData; }
                         throw new Error(errorMessage);
                     }
                     alert(`Negocio ${esCrear ? 'creado' : 'actualizado'} exitosamente!`);
-                    await this.cargarNegociosUsuario(); 
-                    this.prepararNuevoNegocio(); 
-                    this.selectTab('lista'); // Volver a la lista despues de guardar
-                } catch (error) {
-                    this.mostrarError(error.message);
+                    await this.cargarNegociosUsuario();
+                    this.prepararNuevoNegocio();
+                    this.selectTab('lista');
+                } catch (error) { this.mostrarError(error.message); }
+            },
+            handleNegocioSeleccionado() {
+                this.cargarProductosDelNegocioSeleccionado();
+                if (this.activeTab === 'pedidos' && this.negocioSeleccionadoId) {
+                    this.cargarPedidosDelNegocio();
                 }
             },
-            async cargarProductosDelNegocioSeleccionado() { /* ... (sin cambios) ... */
-                if (!this.negocioSeleccionadoId) {
-                    this.productosNegocioSeleccionado = [];
-                    return;
-                }
-                this.loadingProductos = true;
-                this.apiErrorProductos = null; 
+            async cargarProductosDelNegocioSeleccionado() { /* ... */
+                if (!this.negocioSeleccionadoId) { this.productosNegocioSeleccionado = []; return; }
+                this.loadingProductos = true; this.apiErrorProductos = null;
                 try {
                     const response = await fetch(`/api/negocios/${this.negocioSeleccionadoId}/productos/`, { headers: this.apiAuthHeaders });
                     if (!response.ok) {
-                         const errData = await response.json().catch(() => null);
-                        throw new Error(errData?.detail ||`Error ${response.status}: No se pudieron cargar los productos.`);
+                        const errData = await response.json().catch(() => null);
+                        throw new Error(errData?.detail || `Error ${response.status}: No se pudieron cargar los productos.`);
                     }
                     const data = await response.json();
                     let fetchedProductos = data.productos || (Array.isArray(data) ? data : data.results || []);
-                    this.productosNegocioSeleccionado = fetchedProductos.map(p => ({
-                        ...p,
-                        imagen_url: p.imagen_url || DEFAULT_PLACEHOLDER_PRODUCTO
-                    }));
-                } catch (error) {
-                    this.mostrarError(error.message, 'productos');
-                    this.productosNegocioSeleccionado = [];
-                } finally {
-                    this.loadingProductos = false;
-                }
+                    this.productosNegocioSeleccionado = fetchedProductos.map(p => ({ ...p, imagen_url: p.imagen_url || DEFAULT_PLACEHOLDER_PRODUCTO }));
+                } catch (error) { this.mostrarError(error.message, 'productos'); this.productosNegocioSeleccionado = []; }
+                finally { this.loadingProductos = false; }
             },
-            abrirModalProducto(producto = null) { /* ... (sin cambios) ... */
-                this.apiErrorProductos = null; 
-                if (producto) {
-                    this.productoEnEdicion = { ...producto, nombreOriginal: producto.nombre, imagen: null, imagen_url: producto.imagen_url || '' }; 
-                    this.modoFormularioProducto = 'editar';
-                } else {
-                    this.productoEnEdicion = { id: null, nombre: '', descripcion: '', precio: null, stock: null, imagen: null, imagen_url: '', nombreOriginal: '' };
-                    this.modoFormularioProducto = 'crear';
-                }
-                this.imagenProductoFile = null; 
-                this.imagenProductoPreviewUrl = '';
-                const imagenInput = document.getElementById('imagenProducto');
+            abrirModalProducto(producto = null) { /* ... */
+                this.apiErrorProductos = null;
+                if (producto) { this.productoEnEdicion = { ...producto, nombreOriginal: producto.nombre, imagen: null, imagen_url: producto.imagen_url || '' }; this.modoFormularioProducto = 'editar'; }
+                else { this.productoEnEdicion = { id: null, nombre: '', descripcion: '', precio: null, stock: null, imagen: null, imagen_url: '', nombreOriginal: '' }; this.modoFormularioProducto = 'crear'; }
+                this.imagenProductoFile = null; this.imagenProductoPreviewUrl = '';
+                const imagenInput = document.getElementById('imagenProductoModal');
                 if (imagenInput) imagenInput.value = null;
-                $('#modalProducto').modal('show'); 
+                if (typeof $ !== 'undefined' && $('#modalProducto').modal) { $('#modalProducto').modal('show'); }
+                else { console.error("jQuery o Bootstrap modal no estan disponibles para #modalProducto"); }
             },
-            cerrarModalProducto() { /* ... (sin cambios) ... */
-                $('#modalProducto').modal('hide');
-            },
-            handleImagenProductoUpload(event) { /* ... (sin cambios) ... */
+            cerrarModalProducto() { /* ... */ if (typeof $ !== 'undefined' && $('#modalProducto').modal) { $('#modalProducto').modal('hide'); } },
+            handleImagenProductoUpload(event) { /* ... */
                 const file = event.target.files[0];
-                if (file) {
-                    this.imagenProductoFile = file;
-                    this.imagenProductoPreviewUrl = URL.createObjectURL(file); 
-                } else {
-                    this.imagenProductoFile = null;
-                    this.imagenProductoPreviewUrl = '';
-                }
+                if (file) { this.imagenProductoFile = file; this.imagenProductoPreviewUrl = URL.createObjectURL(file); }
+                else { this.imagenProductoFile = null; this.imagenProductoPreviewUrl = ''; }
             },
-            async guardarProducto() { /* ... (sin cambios) ... */
-                if (!this.negocioSeleccionadoId) {
-                    this.mostrarError("Por favor, selecciona un negocio primero.", 'productos');
-                    return;
-                }
+            async guardarProducto() { /* ... */
+                if (!this.negocioSeleccionadoId) { this.mostrarError("Por favor, selecciona un negocio primero.", 'productos'); return; }
                 this.apiErrorProductos = null;
                 const esCrear = this.modoFormularioProducto === 'crear';
                 const url = esCrear ? `/api/negocios/${this.negocioSeleccionadoId}/productos/` : `/api/productos/${this.productoEnEdicion.id}/`;
                 const method = esCrear ? 'POST' : 'PUT';
-
                 let formData = new FormData();
                 formData.append('nombre', this.productoEnEdicion.nombre);
                 formData.append('descripcion', this.productoEnEdicion.descripcion || '');
                 formData.append('precio', parseFloat(this.productoEnEdicion.precio) || 0);
                 formData.append('stock', parseInt(this.productoEnEdicion.stock, 10) || 0);
-                if (this.imagenProductoFile) {
-                    formData.append('imagen', this.imagenProductoFile);
-                }
+                if (this.imagenProductoFile) formData.append('imagen', this.imagenProductoFile);
                 try {
-                    const headers = { ...this.apiAuthHeaders };
-                    delete headers['Content-Type']; 
+                    const headers = { ...this.apiAuthHeaders }; delete headers['Content-Type'];
                     const response = await fetch(url, { method: method, headers: headers, body: formData });
                     const responseData = await response.json().catch(() => null);
                     if (!response.ok) {
                         let errorMessage = `Error ${response.status} al guardar producto.`;
+                        if (responseData) { if (responseData.detail) errorMessage = responseData.detail; else if (typeof responseData === 'object') errorMessage = JSON.stringify(responseData); else if (typeof responseData === 'string') errorMessage = responseData; }
+                        throw new Error(errorMessage);
+                    }
+                    alert(`Producto ${esCrear ? 'agregado' : 'actualizado'} exitosamente!`);
+                    this.cerrarModalProducto(); this.cargarProductosDelNegocioSeleccionado();
+                } catch (error) { this.mostrarError(`Error guardando producto: ${error.message}`, 'productos'); }
+            },
+            async eliminarProducto(productoId, productoNombre) { /* ... */
+                if (!confirm(`¿Estas seguro de que quieres eliminar el producto "${productoNombre}"?`)) return;
+                this.apiErrorProductos = null;
+                try {
+                    const headers = { ...this.apiAuthHeaders }; delete headers['Content-Type'];
+                    const response = await fetch(`/api/productos/${productoId}/`, { method: 'DELETE', headers: headers });
+                    if (response.status === 204) { alert("Producto eliminado exitosamente."); this.cargarProductosDelNegocioSeleccionado(); }
+                    else if (!response.ok) { const errData = await response.json().catch(() => ({ detail: `Error ${response.status} al eliminar producto.` })); throw new Error(errData.detail || JSON.stringify(errData)); }
+                    else { alert("Producto eliminado (respuesta inesperada del servidor)."); this.cargarProductosDelNegocioSeleccionado(); }
+                } catch (error) { this.mostrarError(`Error eliminando producto: ${error.message}`, 'productos'); }
+            },
+            async cargarPedidosDelNegocio() {
+                if (!this.negocioSeleccionadoId) {
+                    this.itemsPedidoDelNegocio = [];
+                    return;
+                }
+                this.loadingPedidosNegocio = true;
+                this.apiErrorPedidosNegocio = null;
+                try {
+                    const response = await fetch(`/api/negocios/${this.negocioSeleccionadoId}/pedidos-recibidos/`, {
+                        headers: this.apiAuthHeaders
+                    });
+                    if (!response.ok) {
+                        const errData = await response.json().catch(() => ({ detail: `Error ${response.status}` }));
+                        throw new Error(errData.detail || JSON.stringify(errData) || `Error ${response.status} al cargar pedidos del negocio.`);
+                    }
+                    const data = await response.json();
+                    this.itemsPedidoDelNegocio = data;
+                    console.log(`Items de Pedido para negocio ${this.negocioSeleccionadoId}:`, JSON.parse(JSON.stringify(data)));
+                } catch (error) {
+                    this.mostrarError(error.message, 'pedidosNegocio');
+                    this.itemsPedidoDelNegocio = [];
+                } finally {
+                    this.loadingPedidosNegocio = false;
+                }
+            },
+            logNuevoEstado(grupoPedido) {
+                console.log('Estado seleccionado para pedido #', grupoPedido.pedido_id, ':', grupoPedido.nuevo_estado);
+                console.log('Estado actual del pedido:', grupoPedido.pedido_estado);
+                this.$forceUpdate();
+            },
+            isActualizarEstadoDisabled(grupoPedido) {
+                const isDisabled = !grupoPedido.nuevo_estado ||
+                    this.procesandoEstado[grupoPedido.pedido_id] ||
+                    grupoPedido.nuevo_estado === grupoPedido.pedido_estado;
+                return isDisabled;
+            },
+            async actualizarEstadoPedido(pedidoId, nuevoEstado) {
+                if (!nuevoEstado) {
+                    alert("Por favor, selecciona un nuevo estado.");
+                    return;
+                }
+                this.$set(this.procesandoEstado, pedidoId, true);
+                this.apiErrorPedidosNegocio = null;
+                console.log(`Actualizando estado del Pedido #${pedidoId} a ${nuevoEstado}`);
+                try {
+                    const headers = { ...this.apiAuthHeaders, 'Content-Type': 'application/json' };
+                    const response = await fetch(`/api/gestion-pedidos/${pedidoId}/`, {
+                        method: 'PATCH',
+                        headers: headers,
+                        body: JSON.stringify({ estado: nuevoEstado })
+                    });
+                    const responseData = await response.json().catch(() => null);
+                    if (!response.ok) {
+                        let errorMessage = `Error ${response.status} al actualizar estado.`;
                         if (responseData) {
                             if (responseData.detail) errorMessage = responseData.detail;
+                            else if (responseData.estado && Array.isArray(responseData.estado)) errorMessage = `Estado: ${responseData.estado.join(', ')}`;
                             else if (typeof responseData === 'object') errorMessage = JSON.stringify(responseData);
                             else if (typeof responseData === 'string') errorMessage = responseData;
                         }
                         throw new Error(errorMessage);
                     }
-                    alert(`Producto ${esCrear ? 'agregado' : 'actualizado'} exitosamente!`);
-                    this.cerrarModalProducto();
-                    this.cargarProductosDelNegocioSeleccionado(); 
+                    alert(`Estado del Pedido #${pedidoId} actualizado a ${responseData.estado}.`);
+                    this.cargarPedidosDelNegocio();
                 } catch (error) {
-                    this.mostrarError(`Error guardando producto: ${error.message}`, 'productos');
+                    this.mostrarError(`Error actualizando estado: ${error.message}`, 'pedidosNegocio');
+                } finally {
+                    this.$set(this.procesandoEstado, pedidoId, false);
                 }
             },
-            async eliminarProducto(productoId, productoNombre) { /* ... (sin cambios) ... */
-                 if (!confirm(`¿Estas seguro de que quieres eliminar el producto "${productoNombre}"?`)) return;
-                this.apiErrorProductos = null;
-                try {
-                    const headers = { ...this.apiAuthHeaders };
-                    delete headers['Content-Type'];
-                    const response = await fetch(`/api/productos/${productoId}/`, { method: 'DELETE', headers: headers });
-                    if (response.status === 204) { 
-                        alert("Producto eliminado exitosamente.");
-                        this.cargarProductosDelNegocioSeleccionado();
-                    } else if (!response.ok) {
-                         const errData = await response.json().catch(() => ({detail: `Error ${response.status} al eliminar producto.`}));
-                        throw new Error(errData.detail || JSON.stringify(errData));
-                    } else {
-                        alert("Producto eliminado (respuesta inesperada del servidor).");
-                        this.cargarProductosDelNegocioSeleccionado();
-                    }
-                } catch (error) {
-                    this.mostrarError(`Error eliminando producto: ${error.message}`, 'productos');
+            formatDate(dateString) {
+                if (!dateString) return 'Fecha no disponible';
+                const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+                try { return new Date(dateString).toLocaleDateString('es-MX', options); }
+                catch (e) { console.error("Error formateando fecha:", dateString, e); return "Fecha invalida"; }
+            },
+            estadoClase(estado) {
+                if (!estado) return '';
+                const estadoLower = estado.toLowerCase();
+                if (estadoLower === 'completado') return 'text-success';
+                if (estadoLower === 'cancelado') return 'text-danger';
+                if (estadoLower === 'pendiente') return 'text-warning';
+                if (estadoLower === 'procesando' || estadoLower === 'enviado') return 'text-info';
+                return 'text-secondary';
+            }
+        },
+        watch: {
+            negocioSeleccionadoId(newId, oldId) {
+                if (newId !== oldId && this.activeTab === 'pedidos' && newId) {
+                    this.cargarPedidosDelNegocio();
                 }
             }
         }

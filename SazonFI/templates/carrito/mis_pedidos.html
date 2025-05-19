@@ -1,0 +1,206 @@
+﻿{% extends 'base.html' %}
+
+{% block content %}
+<div id="app-mis-pedidos" class="container mt-4">
+    <h1>Mis Pedidos</h1>
+    <hr>
+
+    <ul class="nav nav-tabs mb-3" id="pedidosTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" :class="{ active: activeTab === 'activos' }" @click.prevent="selectTab('activos')" href="#activos">Pedidos Activos</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" :class="{ active: activeTab === 'historial' }" @click.prevent="selectTab('historial')" href="#historial">Historial de Pedidos</a>
+        </li>
+    </ul>
+
+    <div v-if="loading" class="alert alert-info mt-3">
+        Cargando pedidos...
+    </div>
+    <div v-if="errorApi" class="alert alert-danger mt-3">
+        Error al cargar pedidos: {{ errorApi }}
+    </div>
+
+    <div class="tab-content" id="pedidosTabsContent">
+        <div class="tab-pane fade" :class="{ 'show active': activeTab === 'activos' }" id="activos" role="tabpanel">
+            <h3>Pedidos en Curso</h3>
+            <div v-if="!loading && pedidosActivos.length === 0 && !errorApi" class="alert alert-secondary mt-2">
+                No tienes pedidos activos en este momento.
+            </div>
+            <div v-for="pedido in pedidosActivos" :key="pedido.id" class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>Pedido #<strong v-text="pedido.id"></strong> - Estado: <strong :class="estadoClase(pedido.estado)" v-text="pedido.estado || 'Estado Desconocido'"></strong></span>
+                    <span v-text="'Fecha: ' + formatDate(pedido.creado_en)"></span>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title" v-text="'Total: $' + (pedido.total_pedido !== null && pedido.total_pedido !== undefined ? parseFloat(pedido.total_pedido).toFixed(2) : '0.00')"></h5>
+                    <h6>Items del Pedido:</h6>
+                    <ul class="list-group list-group-flush">
+                        <li v-for="item in pedido.items_pedido" :key="item.id" class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <img :src="item.producto.imagen_url"
+                                         :alt="item.nombre_producto"
+                                         style="width: 50px; height: 50px; object-fit: cover; margin-right: 10px;"
+                                         @error="setDefaultImagenProducto($event)">
+                                    <span v-text="item.cantidad"></span> x <strong v-text="item.nombre_producto || 'Nombre no disponible'"></strong>
+                                    <small class="d-block text-muted" v-if="item.negocio" v-text="'Vendido por: ' + (item.negocio.nombre || 'Negocio no especificado')"></small>
+                                    <small class="d-block text-muted" v-else>Vendido por: Negocio no especificado</small>
+                                </div>
+                                <span v-text="'$' + (item.subtotal_pedido !== null && item.subtotal_pedido !== undefined ? parseFloat(item.subtotal_pedido).toFixed(2) : '0.00')"></span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" :class="{ 'show active': activeTab === 'historial' }" id="historial" role="tabpanel">
+            <h3>Historial de Pedidos</h3>
+            <div v-if="!loading && pedidosHistorial.length === 0 && !errorApi" class="alert alert-secondary mt-2">
+                No tienes pedidos en tu historial.
+            </div>
+            <div v-for="pedido in pedidosHistorial" :key="pedido.id" class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>Pedido #<strong v-text="pedido.id"></strong> - Estado: <strong :class="estadoClase(pedido.estado)" v-text="pedido.estado || 'Estado Desconocido'"></strong></span>
+                    <span v-text="'Fecha: ' + formatDate(pedido.creado_en)"></span>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title" v-text="'Total: $' + (pedido.total_pedido !== null && pedido.total_pedido !== undefined ? parseFloat(pedido.total_pedido).toFixed(2) : '0.00')"></h5>
+                    <h6>Items del Pedido:</h6>
+                    <ul class="list-group list-group-flush">
+                        <li v-for="item in pedido.items_pedido" :key="item.id" class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <img :src="item.producto.imagen_url"
+                                         :alt="item.nombre_producto"
+                                         style="width: 50px; height: 50px; object-fit: cover; margin-right: 10px;"
+                                         @error="setDefaultImagenProducto($event)">
+                                    <span v-text="item.cantidad"></span> x <strong v-text="item.nombre_producto || 'Nombre no disponible'"></strong>
+                                    <small class="d-block text-muted" v-if="item.negocio" v-text="'Vendido por: ' + (item.negocio.nombre || 'Negocio no especificado')"></small>
+                                    <small class="d-block text-muted" v-else>Vendido por: Negocio no especificado</small>
+                                </div>
+                                <span v-text="'$' + (item.subtotal_pedido !== null && item.subtotal_pedido !== undefined ? parseFloat(item.subtotal_pedido).toFixed(2) : '0.00')"></span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+<script>
+    const DEFAULT_PLACEHOLDER_PRODUCTO = 'https://placehold.co/300x200/EFEFEF/AAAAAA?text=Sin+Imagen';
+
+    const appMisPedidos = new Vue({
+        el: '#app-mis-pedidos',
+        data: {
+            activeTab: 'activos',
+            todosLosPedidos: [],
+            loading: true,
+            errorApi: null,
+            token: localStorage.getItem('token'),
+            defaultProductoImagen: DEFAULT_PLACEHOLDER_PRODUCTO
+        },
+        computed: {
+            pedidosActivos() {
+                const estadosActivos = ['PENDIENTE', 'PROCESANDO', 'ENVIADO'];
+                return this.todosLosPedidos.filter(p => p.estado && estadosActivos.includes(p.estado.toUpperCase()));
+            },
+            pedidosHistorial() {
+                const estadosHistorial = ['COMPLETADO', 'CANCELADO'];
+                return this.todosLosPedidos.filter(p => p.estado && estadosHistorial.includes(p.estado.toUpperCase()));
+            }
+        },
+        mounted() {
+            if (!this.token) {
+                this.errorApi = "Debes iniciar sesion para ver tus pedidos.";
+                this.loading = false;
+                return;
+            }
+            this.fetchMisPedidos();
+        },
+        methods: {
+            selectTab(tabName) {
+                this.activeTab = tabName;
+            },
+            fetchMisPedidos() {
+                this.loading = true;
+                this.errorApi = null;
+                fetch('/api/pedidos/mis-pedidos/', {
+                    headers: {
+                        'Authorization': `Token ${this.token}`
+                    }
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(errData => {
+                                throw new Error(errData.detail || JSON.stringify(errData) || `Error HTTP ${response.status}`);
+                            }).catch(() => { throw new Error(`Error HTTP ${response.status} al obtener pedidos.`); });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Datos crudos de /api/pedidos/mis-pedidos/:', JSON.parse(JSON.stringify(data)));
+                        this.todosLosPedidos = data.map(pedido => ({
+                            ...pedido,
+                            items_pedido: pedido.items_pedido.map(item => {
+                                const productoData = item.producto || { nombre: 'Producto no disponible', imagen_url: this.defaultProductoImagen, precio: '0.00' };
+                                const negocioData = item.negocio || { nombre: 'Negocio no disponible' };
+                                return {
+                                    ...item,
+                                    nombre_producto: item.nombre_producto || productoData.nombre,
+                                    producto: {
+                                        id: productoData.id || null,
+                                        nombre: productoData.nombre || 'Producto no disponible',
+                                        precio: productoData.precio || '0.00',
+                                        imagen_url: productoData.imagen_url || this.defaultProductoImagen
+                                    },
+                                    negocio: {
+                                        id: negocioData.id || null,
+                                        nombre: negocioData.nombre || 'Negocio no disponible'
+                                    }
+                                };
+                            })
+                        }));
+                        console.log('Mis Pedidos procesados para Vue:', JSON.parse(JSON.stringify(this.todosLosPedidos)));
+                        if (this.todosLosPedidos.length > 0 && this.todosLosPedidos[0].items_pedido.length > 0) {
+                            const primerItem = this.todosLosPedidos[0].items_pedido[0];
+                            console.log('Primer item del primer pedido (para depurar nombres):', JSON.parse(JSON.stringify(primerItem)));
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error en fetchMisPedidos:', error);
+                        this.errorApi = error.message;
+                    })
+                    .finally(() => {
+                        this.loading = false;
+                    });
+            },
+            formatDate(dateString) {
+                if (!dateString) return 'Fecha no disponible';
+                const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+                try { return new Date(dateString).toLocaleDateString('es-MX', options); }
+                catch (e) { console.error("Error formateando fecha:", dateString, e); return "Fecha invalida"; }
+            },
+            estadoClase(estado) {
+                if (!estado) return '';
+                const estadoLower = estado.toLowerCase();
+                if (estadoLower === 'completado') return 'text-success';
+                if (estadoLower === 'cancelado') return 'text-danger';
+                if (estadoLower === 'pendiente') return 'text-warning';
+                if (estadoLower === 'procesando' || estadoLower === 'enviado') return 'text-info';
+                return 'text-secondary';
+            },
+            setDefaultImagenProducto(event) {
+                event.target.src = this.defaultProductoImagen;
+                event.target.onerror = null;
+            }
+        }
+    });
+</script>
+{% endblock %}

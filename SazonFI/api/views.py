@@ -60,12 +60,23 @@ class InicioSesionAPIView(APIView):
     
 def get_queryset(self):
     query = self.request.GET.get('q', '').strip()
+    categoria = self.request.GET.get('categoria', '').lower()
+    orden = self.request.GET.get('orden', '').lower()
+
     queryset = Negocio.objects.all()
+
     if query:
         queryset = queryset.filter(
             Q(nombre__icontains=query) |
             Q(descripcion__icontains=query) |
             Q(direccion__icontains=query) |
-            Q(producto__nombre__icontains=query) 
+            Q(producto__nombre__icontains=query)
         ).distinct()
+
+    if categoria in ['franquicia', 'estudiante']:
+        queryset = queryset.filter(categoria=categoria)
+
+    if orden == 'alfabetico':
+        queryset = queryset.order_by('nombre')
+
     return queryset

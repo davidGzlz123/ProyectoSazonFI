@@ -136,6 +136,24 @@ button.custom-btn:active {
     padding-bottom: 20px;
 }
 
+/* Contenedor scrollable sin barra visible */
+.desc-scroll {
+    overflow-y: auto;           
+    -ms-overflow-style: none;   /* IE y Edge */
+    scrollbar-width: none;      /* Firefox */
+}
+
+.desc-scroll::-webkit-scrollbar {
+  width: 0px !important;
+  height: 0px !important;
+  background: transparent;
+}
+
+.card-text {
+    text-align: justify;
+}
+
+
 .btProduct{
     background-color: #c8c8c8;
     border-radius: 10px;

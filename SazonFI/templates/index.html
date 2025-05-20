@@ -10,22 +10,16 @@
     <!-- Botones filtros -->
     <div class="button-group text-center">
         <button class="custom-btn">
-            <i class="fa-solid fa-star">
-                Recomendado
-                <img src="{{ MEDIA_URL }}principal/recommend.png" alt="star-logo" width="30" height="30">
-            </i>
-        </button>
-        <button class="custom-btn">
             <i class="fa-solid fa-tag"></i>
-            Ofertas
+            Estudiantes
         </button>
         <button class="custom-btn">
             <i class="fa-solid fa-fire"></i>
-            Populares
+            Franquicias
         </button>
         <button class="custom-btn">
             <i class="fa-solid fa-sliders"></i>
-            Filtros
+            Orden alfabetico
         </button>
     </div>
 
@@ -36,19 +30,25 @@
 
         <div class="row" v-if="!loading && negocios.length > 0">
             <div class="col-md-4 mb-4" v-for="negocio in negocios" :key="negocio.id">
-                <div class="card h-100 div-local">
-                    <img :src="negocio.logo_url"
-                        class="card-img-top cardIMG"
-                        :alt="'Logo de ' + (negocio.nombre || 'Negocio')"
-                        @error="handleImageError($event, negocio.nombre)">
+                    <div class="card h-100 div-local">
+                        <img :src="negocio.logo_url"
+                            class="card-img-top cardIMG"
+                            :alt="'Logo de ' + (negocio.nombre || 'Negocio')"
+                            @error="handleImageError($event, negocio.nombre)">
 
-                    <div class="card-body d-flex flex-column localInfo">
-                        <h5 class="card-title" v-text="negocio.nombre"></h5>
-                        <p class="card-text" v-text="negocio.descripcion" style="text-align: justify;"></p>
-                        <button @click="verProductos(negocio.id)" class="btn btn-primary mt-auto btProduct d-block mx-auto">Ver Productos</button>
+                        <div class="card-body d-flex flex-column localInfo">
+                            <h5 class="card-title" v-text="negocio.nombre"></h5>
+                            <div class="flex-grow-1 overflow-auto mb-3 desc-scroll" style="max-height:120px;">
+                                <p class="card-text" v-text="negocio.descripcion"></p>
+                            </div>
+                            <button @click="verProductos(negocio.id)" class="btn btn-primary mt-auto btProduct d-block mx-auto" style="background-color: rgba(255, 99, 71, 0.343);">Ver Productos</button>
+                        </div>
                     </div>
                 </div>
             </div>
+                <div v-if="!loading && !error && negocios.length === 0" class="alert alert-warning">
+                    No hay negocios disponibles en este momento.
+                </div>
         </div>
         <div v-if="!loading && !error && negocios.length === 0" class="alert alert-warning">
             No hay negocios disponibles en este momento.

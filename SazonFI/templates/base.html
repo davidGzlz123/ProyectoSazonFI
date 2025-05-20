@@ -6,46 +6,71 @@
     <title>SazonFI</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     {% load static %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"/>
+
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    {# Considera usar class="navbar navbar-expand-lg navbar-custom" si quieres tu fondo naranja del CSS #}
-    <nav class="navbar navbar-expand-lg navbar-light bg-light"> 
-        <a class="navbar-brand" href="{% url 'index' %}">SazonFI</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item"> {# Quitado 'active' para que se maneje dinamicamente si es necesario #}
-                    <a class="nav-link" href="{% url 'index' %}">Inicio</a>
-                </li>
-                
-                {# Enlaces para Cliente #}
-                <li class="nav-item" id="carrito-link" style="display: none;"> 
-                    <a class="nav-link" href="{% url 'carritos:ver_carrito' %}">Mi Carrito</a> 
-                </li>
-                <li class="nav-item" id="mis-pedidos-link" style="display: none;"> 
-                    <a class="nav-link" href="{% url 'carritos:mis_pedidos_pagina' %}">Mis Pedidos</a> 
-                </li>
+    <nav class="navbar navbar-expand-lg navbar-light navbar-custom">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'index' %}">
+                <img src="{{ MEDIA_URL }}principal/logo.png" alt="Logo-SazonFI" width="220" height="150" class="d-inline-block align-top">
+            </a>
+            <!-- <a class="navbar-brand" href="{% url 'index' %}">SazonFI</a> -->
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav w-100 align-items-center">
+                    <!-- Barra de búsqueda -->
+                    <li class="nav-item mx-auto" id="search-bar">
+                        <form action="/buscar" method="get" class="search-bar">
+                                <!-- Icono de lupa -->
+                                <img src="{{ MEDIA_URL }}principal/search.png" alt="search-icon" class="search-icon">
+                            <input type="search" name="q" class="search-input" placeholder="Buscar comida ..." aria-label="Buscar comida">
+                        </form>
+                    </li>
+                    <!-- Login/Registro -->
+                    <li class="nav-item" id="login-link">
+                    <div class="d-flex align-items-center">
+                        <!-- icono -->
+                        <img src="{{ MEDIA_URL }}principal/login.png" alt="Login-Icon" width="45" height="45" class="mr-2">
+                        <a href="{% url 'login' %}" class="nav-link login-btn {% if request.resolver_match.url_name == 'registro' %}active{% endif %}" style="color: #D9D9D9; font-size: 25px;">Ingresa</a>
 
-                {# Enlace para Usuario Negocio #}
-                <li class="nav-item" id="panel-negocio-link" style="display: none;"> 
-                    <a class="nav-link" href="{% url 'pagina_negocio' %}">Panel Negocio</a> 
-                </li>
+                        <span class="mx-1" style="color: #D9D9D9; font-size: 25px;">o</span>
 
-                {# Enlaces Comunes #}
-                <li class="nav-item" id="login-link">
-                    <a class="nav-link" href="{% url 'login' %}">Login</a>
-                </li>
-                <li class="nav-item" id="registro-link">
-                    <a class="nav-link" href="{% url 'registro' %}">Registro</a>
-                </li>
-                <li class="nav-item" id="logout-link" style="display: none;">
-                    <a class="nav-link" href="#" onclick="logout(event)">Cerrar Sesion</a> {# Pasar event a logout #}
-                </li>
-            </ul>
+                        <a href="{% url 'registro' %}" class="nav-link login-btn {% if request.resolver_match.url_name == 'registro' %}active{% endif %}" style="color: #D9D9D9; font-size: 25px;">Regístrate</a>
+                    </div>
+                    {# ENLACE AL CARRITO - CORREGIDO #}
+                    <li class="nav-item" id="carrito-link" style="display: none;">
+                        <a class="nav-link" href="{% url 'carritos:ver_carrito' %}">
+                            <img src="{{ MEDIA_URL }}principal/carrito.png" alt="Carrito-link" width="50" height="50">
+                        </a>
+                    </li>
+
+                    <li class="nav-item" id="mis-pedidos-link" style="display: none;"> 
+                        <a class="nav-link" href="{% url 'carritos:mis_pedidos_pagina' %}">
+                            <img src="{{ MEDIA_URL }}principal/pedidos.png" alt="Login-Icon" width="40" height="40">
+                        </a> 
+                    </li>
+
+                    {# Enlace para Usuario Negocio #}
+                    <li class="nav-item" id="panel-negocio-link" style="display: none;"> 
+                        <a class="nav-link" href="{% url 'pagina_negocio' %}">
+                            <img src="{{ MEDIA_URL }}principal/panel.png" alt="Login-Icon" width="40" height="40">
+
+                        </a> 
+                    </li>
+
+                    <li class="nav-item" id="logout-link" style="display: none;">
+                        <a class="nav-link" href="#" onclick="logout(event)" style="color: #D9D9D9; font-size: 25px;">
+                            <img src="{{ MEDIA_URL }}principal/login.png" alt="Login-Icon" width="40" height="40">
+                            Cerrar Sesion
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </div>
     </nav>
 
@@ -54,8 +79,25 @@
         {% endblock %}
     </div>
 
-    <footer class="mt-5 bg-light text-center py-3">
-        <p>&copy; 2025 SazonFI</p>
+    <footer class="mt-5 text-center py-3">
+        <ul class="list-inline">
+            <li class="list-inline-item">
+                <a href="#">
+                    <img src="{{ MEDIA_URL }}principal/facebook.png" alt="Facebook" width="48" height="48">
+                </a>
+            </li>
+            <li class="list-inline-item">
+                <a href="#">
+                    <img src="{{ MEDIA_URL }}principal/instagram.png" alt="Instagram" width="40" height="40">
+                </a>
+            </li>
+            <li class="list-inline-item">
+                <a href="#">
+                    <img src="{{ MEDIA_URL }}principal/x.png" alt="Twitter/X" width="40" height="40">
+                </a>
+            </li>
+        </ul>
+        <p style="color: #D9D9D9;">&copy; 2025 SazonFI</p>
     </footer>
 
     <script>
@@ -117,6 +159,13 @@
             checkAuthentication();
         });
     </script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <!-- Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js"></script>
+
     {% block scripts %}
     {# Vue.js y otros scripts especificos de pagina se cargaran aqui #}
     {% endblock %}

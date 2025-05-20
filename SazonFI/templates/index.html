@@ -6,17 +6,17 @@
     <p class="lead text-center">Explora los negocios disponibles y descubre sus productos.</p>
     <hr>
 
-    <!-- Botones filtros (puedes integrar luego su lógica) -->
-    <div class="button-group text-center">
-        <button class="custom-btn">
+    <!-- Botones filtros -->
+    <div class="button-group text-center mb-4">
+        <button class="custom-btn" @click="filtrar('estudiante')">
             <i class="fa-solid fa-tag"></i>
             Estudiantes
         </button>
-        <button class="custom-btn">
+        <button class="custom-btn" @click="filtrar('franquicia')">
             <i class="fa-solid fa-fire"></i>
             Franquicias
         </button>
-        <button class="custom-btn">
+        <button class="custom-btn" @click="ordenar('alfabetico')">
             <i class="fa-solid fa-sliders"></i>
             Orden alfabético
         </button>
@@ -64,29 +64,38 @@ const appIndexNegocios = new Vue({
         loading: true,
         error: null,
         currentQuery: '',
+        filtroCategoria: '',
+        ordenActual: '',
     },
     mounted() {
-        // Leer parámetro 'q' al cargar para búsqueda inicial
         const params = new URLSearchParams(window.location.search);
         this.currentQuery = params.get('q') || '';
+        this.filtroCategoria = params.get('categoria') || '';
+        this.ordenActual = params.get('orden') || '';
 
-        if (this.currentQuery) {
-            this.buscarNegocios(this.currentQuery);
-        } else {
-            this.fetchNegocios();
-        }
+        this.cargarNegocios();
 
-        // Escuchar evento disparado desde la barra en base.html
         window.addEventListener('busqueda-cambiada', (e) => {
             this.currentQuery = e.detail;
-            this.buscarNegocios(this.currentQuery);
+            this.filtroCategoria = '';
+            this.ordenActual = '';
+            this.cargarNegocios();
         });
     },
     methods: {
-        fetchNegocios() {
+        cargarNegocios() {
             this.loading = true;
             this.error = null;
-            fetch('/api/negocios/')
+            let url = '/api/negocios/?';
+            if (this.currentQuery) url += `q=${encodeURIComponent(this.currentQuery)}&`;
+            if (this.filtroCategoria) url += `categoria=${encodeURIComponent(this.filtroCategoria)}&`;
+            if (this.ordenActual) url += `orden=${encodeURIComponent(this.ordenActual)}&`;
+
+            // Actualizar la URL sin recargar
+            const newUrl = `${window.location.pathname}?${url.split('?')[1]}`;
+            window.history.replaceState({}, '', newUrl);
+
+            fetch(url)
                 .then(res => {
                     if (!res.ok) throw new Error('Error al cargar negocios');
                     return res.json();
@@ -101,27 +110,17 @@ const appIndexNegocios = new Vue({
                     this.loading = false;
                 });
         },
-        buscarNegocios(term) {
-            this.loading = true;
-            this.error = null;
-            let url = '/api/negocios/';
-            if (term && term.trim().length > 0) {
-                url += `?q=${encodeURIComponent(term)}`;
-            }
-            fetch(url)
-                .then(res => {
-                    if (!res.ok) throw new Error('Error al cargar negocios filtrados');
-                    return res.json();
-                })
-                .then(data => {
-                    this.negocios = data;
-                })
-                .catch(err => {
-                    this.error = err.message;
-                })
-                .finally(() => {
-                    this.loading = false;
-                });
+        filtrar(categoria) {
+            this.filtroCategoria = categoria;
+            this.ordenActual = '';
+            this.currentQuery = '';
+            this.cargarNegocios();
+        },
+        ordenar(orden) {
+            this.ordenActual = orden;
+            this.filtroCategoria = '';
+            this.currentQuery = '';
+            this.cargarNegocios();
         },
         verProductos(id) {
             window.location.href = `/negocios/${id}/productos/`;

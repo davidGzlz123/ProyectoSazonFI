@@ -1,4 +1,4 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 
 {% block content %}
 <div id="app-productos">
@@ -60,6 +60,13 @@
         console.error('Error al obtener negocioIdDesdeDjango del template:', e);
         negocioIdDesdeDjango = null;
     }
+
+    window.addEventListener('busqueda-cambiada', e => {
+    const term = e.detail;
+    // Redirigir a la lista principal filtrada
+    window.location.href = `/?q=${encodeURIComponent(term)}`;
+    });
+
 
     const appProductos = new Vue({
         el: '#app-productos',

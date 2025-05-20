@@ -32,12 +32,13 @@ class NegocioViewSet(viewsets.ModelViewSet):
         user_rol_value = getattr(user, 'rol', 'ROL_NO_DEFINIDO_EN_USUARIO')
 
         query = self.request.GET.get('q', '').strip()
+        categoria = self.request.GET.get('categoria', '').lower()
+        orden = self.request.GET.get('orden', '').lower()
 
-        print(f"--- DEBUG: NegocioViewSet.get_queryset() --- Action: {action}, User: {user}, Authenticated: {user.is_authenticated}, Rol: '{user_rol_value}', Query: '{query}'")
+        print(f"--- DEBUG: NegocioViewSet.get_queryset() --- Action: {action}, User: {user}, Authenticated: {user.is_authenticated}, Rol: '{user_rol_value}', Query: '{query}', Categoria: '{categoria}', Orden: '{orden}'")
 
         if action == 'list':
             if user.is_authenticated and hasattr(user, 'rol') and user.rol == 'negocio':
-                # Filtrar por usuario y aplicar filtro si hay query
                 queryset = Negocio.objects.filter(usuario=user)
                 if query:
                     queryset = queryset.filter(
@@ -45,11 +46,8 @@ class NegocioViewSet(viewsets.ModelViewSet):
                         Q(descripcion__icontains=query) |
                         Q(direccion__icontains=query) |
                         Q(producto__nombre__icontains=query)
-                        ).distinct()
-                print(f"--- Lista para dueño de negocio, filtrados: {queryset.count()} ---")
-                return queryset
+                    ).distinct()
             else:
-                # Lista pública: todos o filtrados
                 queryset = Negocio.objects.all()
                 if query:
                     queryset = queryset.filter(
@@ -57,9 +55,19 @@ class NegocioViewSet(viewsets.ModelViewSet):
                         Q(descripcion__icontains=query) |
                         Q(direccion__icontains=query) |
                         Q(producto__nombre__icontains=query)
-                        ).distinct()
-                print(f"--- Lista pública, filtrados: {queryset.count()} ---")
-                return queryset
+                    ).distinct()
+
+            # Filtrado por categoría si es válida
+            if categoria in ['franquicia', 'estudiante']:
+                queryset = queryset.filter(categoria=categoria)
+
+            # Ordenamiento si se indica
+            if orden == 'alfabetico':
+                queryset = queryset.order_by('nombre')
+
+            print(f"--- Lista filtrada y ordenada: {queryset.count()} negocios ---")
+            return queryset
+
         elif user.is_authenticated:
             queryset = Negocio.objects.filter(usuario=user)
             if query:
@@ -68,12 +76,13 @@ class NegocioViewSet(viewsets.ModelViewSet):
                     Q(descripcion__icontains=query) |
                     Q(direccion__icontains=query) |
                     Q(producto__nombre__icontains=query)
-                    ).distinct()
+                ).distinct()
             print(f"--- Detalle/Escritura, filtrados: {queryset.count()} ---")
             return queryset
 
         print(f"--- Fallback, queryset vacio ---")
         return Negocio.objects.none()
+
 
     def perform_create(self, serializer): serializer.save(usuario=self.request.user)
     def perform_update(self, serializer):

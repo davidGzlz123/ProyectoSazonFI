@@ -1,4 +1,4 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 
 {% block content %}
 <div id="app-cliente-negocios">
@@ -33,73 +33,87 @@
 </div>
 {% endblock %}
 
+
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
 <script>
-    const appClienteNegocios = new Vue({
-        el: '#app-cliente-negocios',
-        data: {
-            negocios: [],
-            loading: true,
-            error: null,
-        },
-        mounted() {
+const appIndexNegocios = new Vue({
+    el: '#app-index-negocios',
+    data: {
+        negocios: [],
+        loading: true,
+        error: null,
+        currentQuery: '',
+    },
+    mounted() {
+        // Leer parámetro 'q' al cargar para búsqueda inicial
+        const params = new URLSearchParams(window.location.search);
+        this.currentQuery = params.get('q') || '';
+
+        if (this.currentQuery) {
+            this.buscarNegocios(this.currentQuery);
+        } else {
             this.fetchNegocios();
-        },
-        methods: {
-            fetchNegocios() {
-                this.loading = true;
-                this.error = null;
-                fetch('/api/negocios/')
-                    .then(response => {
-                        if (!response.ok) {
-                            return response.json().then(errData => {
-                                throw new Error(errData.detail || JSON.stringify(errData) || `Error HTTP ${response.status}`);
-                            }).catch(() => {
-                                throw new Error(`Error HTTP ${response.status} al cargar negocios.`);
-                            });
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        console.log("Negocios recibidos de la API:", JSON.parse(JSON.stringify(data)));
-                        if (Array.isArray(data)) {
-                            this.negocios = data;
-                        } else if (data && Array.isArray(data.results)) {
-                            this.negocios = data.results;
-                        } else {
-                            this.negocios = [];
-                            console.warn("Estructura de respuesta de /api/negocios/ no reconocida o vacia.");
-                        }
-                        if (this.negocios.length > 0) {
-                            console.log("Primer negocio (para verificar logo_url):", this.negocios[0]);
-                            // Verifica si logo_url es la URL de placeholder esperada
-                            if (this.negocios[0].logo_url && this.negocios[0].logo_url.includes('placehold.co')) {
-                                console.log("El primer negocio esta usando una URL de placeholder para el logo.");
-                            }
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error en fetchNegocios:', error);
-                        this.error = error.message;
-                    })
-                    .finally(() => {
-                        this.loading = false;
-                    });
-            },
-            verProductos(negocioId) {
-                window.location.href = `/negocios/${negocioId}/productos/`;
-            },
-            handleImageError(event) {
-                console.warn("Error cargando imagen:", event.target.src, "Se intentara cargar placeholder alternativo.");
-                // Fallback si incluso el placeholder en :src falla o si la URL original era un placeholder que fallo.
-                // Evitar bucles de error si el placeholder tambien falla.
-                if (!event.target.src.includes('placehold.co/400x200')) { // Evitar recargar el mismo placeholder si falla
-                    event.target.src = 'https://placehold.co/400x200/CCCCCC/999999?text=Logo+No+Disponible';
-                }
-                event.target.onerror = null; // Prevenir bucles de error si el segundo placeholder tambien falla
-            }
         }
-    });
+
+        // Escuchar evento disparado desde la barra en base.html
+        window.addEventListener('busqueda-cambiada', (e) => {
+            this.currentQuery = e.detail;
+            this.buscarNegocios(this.currentQuery);
+        });
+    },
+    methods: {
+        fetchNegocios() {
+            this.loading = true;
+            this.error = null;
+            fetch('/api/negocios/')
+                .then(res => {
+                    if (!res.ok) throw new Error('Error al cargar negocios');
+                    return res.json();
+                })
+                .then(data => {
+                    this.negocios = data;
+                })
+                .catch(err => {
+                    this.error = err.message;
+                })
+                .finally(() => {
+                    this.loading = false;
+                });
+        },
+        buscarNegocios(term) {
+            this.loading = true;
+            this.error = null;
+            let url = '/api/negocios/';
+            if (term && term.trim().length > 0) {
+                url += `?q=${encodeURIComponent(term)}`;
+            }
+            fetch(url)
+                .then(res => {
+                    if (!res.ok) throw new Error('Error al cargar negocios filtrados');
+                    return res.json();
+                })
+                .then(data => {
+                    this.negocios = data;
+                })
+                .catch(err => {
+                    this.error = err.message;
+                })
+                .finally(() => {
+                    this.loading = false;
+                });
+        },
+        verProductos(id) {
+            window.location.href = `/negocios/${id}/productos/`;
+        },
+        handleImageError(event, negocioNombre) {
+            const placeholderNeutral = 'https://placehold.co/300x180/EFEFEF/AAAAAA?text=Logo+No+Disponible';
+            if (event.target.src !== placeholderNeutral) {
+                event.target.src = placeholderNeutral;
+            }
+            event.target.onerror = null;
+        }
+    }
+});
 </script>
 {% endblock %}

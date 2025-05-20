@@ -1,4 +1,4 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 
 {% block content %}
 <div id="app-carrito" class="container mt-5">
@@ -112,6 +112,13 @@
         return cookieValue;
     }
     const csrftoken = getCookie('csrftoken');
+
+    window.addEventListener('busqueda-cambiada', e => {
+    const term = e.detail;
+    // Redirigir a la lista principal filtrada
+    window.location.href = `/?q=${encodeURIComponent(term)}`;
+    });
+
 
     const appCarrito = new Vue({
         el: '#app-carrito',

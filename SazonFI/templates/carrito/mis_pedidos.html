@@ -1,4 +1,4 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 
 {% block content %}
 <div id="app-mis-pedidos" class="container mt-4">
@@ -95,6 +95,13 @@
 <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
 <script>
     const DEFAULT_PLACEHOLDER_PRODUCTO = 'https://placehold.co/300x200/EFEFEF/AAAAAA?text=Sin+Imagen';
+
+    window.addEventListener('busqueda-cambiada', e => {
+    const term = e.detail;
+    // Redirigir a la lista principal filtrada
+    window.location.href = `/?q=${encodeURIComponent(term)}`;
+    });
+
 
     const appMisPedidos = new Vue({
         el: '#app-mis-pedidos',

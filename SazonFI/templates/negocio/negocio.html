@@ -1,4 +1,4 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 
 {% block content %}
 <div id="app-negocio" class="container mt-4">
@@ -100,6 +100,15 @@
                             <label for="direccionNegocioForm">Direccion (Opcional)</label>
                             <input type="text" class="form-control" id="direccionNegocioForm" v-model="negocioEnEdicion.direccion">
                         </div>
+                        <div class="form-group">
+                            <label for="categoriaNegocioForm">Categoría</label>
+                            <select class="form-control" id="categoriaNegocioForm" v-model="negocioEnEdicion.categoria" required>
+                                <option value="" disabled>Seleccione una categoría</option>
+                                <option value="franquicia">Franquicia</option>
+                                <option value="estudiante">Estudiante</option>
+                            </select>
+                        </div>
+
                         <div class="form-group">
                             <label for="logoNegocioForm">Logo del Negocio</label>
                             <input type="file" class="form-control-file" id="logoNegocioForm" @change="handleLogoUpload" accept="image/*">
@@ -236,7 +245,7 @@
             negociosUsuario: [],
             negocioSeleccionadoId: null,
             productosNegocioSeleccionado: [],
-            negocioEnEdicion: { id: null, nombre: '', descripcion: '', direccion: '', logo_url: '', nombreOriginal: '' },
+            negocioEnEdicion: { id: null, nombre: '', descripcion: '', direccion: '', categoria: '', logo_url: '', nombreOriginal: '' },
             modoFormularioNegocio: 'crear',
             logoFile: null,
             logoPreviewUrl: '',
@@ -390,6 +399,7 @@
                 formData.append('nombre', this.negocioEnEdicion.nombre);
                 formData.append('descripcion', this.negocioEnEdicion.descripcion || '');
                 formData.append('direccion', this.negocioEnEdicion.direccion || '');
+                formData.append('categoria', this.negocioEnEdicion.categoria);
                 if (this.logoFile) formData.append('logo', this.logoFile);
                 try {
                     const headers = { ...this.apiAuthHeaders }; delete headers['Content-Type'];

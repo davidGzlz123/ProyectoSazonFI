@@ -3,10 +3,14 @@ from rest_framework import viewsets, permissions
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authtoken.models import Token
-from django.contrib.auth import authenticate, login # <--- IMPORTANTE: Añadir 'login'
-from usuarios.models import Usuario # Asumiendo que tu modelo Usuario esta en usuarios/models.py
-from usuarios.serializers import UsuarioSerializer # Asumiendo que tu UsuarioSerializer esta en usuarios/serializers.py
+from django.contrib.auth import authenticate, login # <--- IMPORTANTE: Aï¿½adir 'login'
+from usuarios.models import Usuario 
+from usuarios.serializers import UsuarioSerializer 
 from rest_framework.views import APIView
+from rest_framework import status
+from negocios.models import Negocio
+from negocios.serializers import NegocioSerializer
+from django.db.models import Q
 
 class RegistroUsuarioViewSet(viewsets.ViewSet):
     permission_classes = [permissions.AllowAny]
@@ -15,7 +19,7 @@ class RegistroUsuarioViewSet(viewsets.ViewSet):
         serializer = UsuarioSerializer(data=request.data)
         if serializer.is_valid():
             usuario = serializer.save()
-            # La contraseña ya deberia estar hasheada por el serializador si usa create_user
+            # La contraseï¿½a ya deberia estar hasheada por el serializador si usa create_user
             # o si el serializador llama a set_password.
             # Si no, esta bien aqui:
             # usuario.set_password(request.data['password']) 
@@ -53,3 +57,26 @@ class InicioSesionAPIView(APIView):
             }, status=status.HTTP_200_OK)
         
         return Response({'error': 'Credenciales invalidas'}, status=status.HTTP_401_UNAUTHORIZED)
+    
+def get_queryset(self):
+    query = self.request.GET.get('q', '').strip()
+    categoria = self.request.GET.get('categoria', '').lower()
+    orden = self.request.GET.get('orden', '').lower()
+
+    queryset = Negocio.objects.all()
+
+    if query:
+        queryset = queryset.filter(
+            Q(nombre__icontains=query) |
+            Q(descripcion__icontains=query) |
+            Q(direccion__icontains=query) |
+            Q(producto__nombre__icontains=query)
+        ).distinct()
+
+    if categoria in ['franquicia', 'estudiante']:
+        queryset = queryset.filter(categoria=categoria)
+
+    if orden == 'alfabetico':
+        queryset = queryset.order_by('nombre')
+
+    return queryset

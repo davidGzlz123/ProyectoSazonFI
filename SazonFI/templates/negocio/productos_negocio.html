@@ -1,9 +1,10 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 
 {% block content %}
 <div id="app-productos">
+    <h1 class="text-center">Recarga energía entre clases con ....</h1>
     {# El H1 toma el nombre del negocio del contexto de Django directamente #}
-    <h1>Productos de: {{ nombre_negocio }}</h1>
+    <h1 class="text-center" style="color: #E2715B;">{{ nombre_negocio }}</h1>
 
     <div class="container mt-4">
         <div v-if="loading" class="alert alert-info">
@@ -15,7 +16,7 @@
 
         <div class="row" v-if="productos.length > 0">
             <div class="col-md-4 mb-4" v-for="producto in productos" :key="producto.id">
-                <div class="card h-100">
+                <div class="card h-100" style="border-radius: 0px 0px 20px 20px;">
                     {# h-100 para igualar altura de tarjetas #}
                     {# --- MOSTRAR IMAGEN DEL PRODUCTO --- #}
                     <img :src="producto.imagen_url"
@@ -24,12 +25,14 @@
                          style="height: 200px; object-fit: cover;"
                          onerror="this.onerror=null; this.src='https://placehold.co/300x200/EFEFEF/AAAAAA?text=Imagen+No+Disponible';">
 
-                    <div class="card-body d-flex flex-column">
+                    <div class="card-body d-flex flex-column" style="border-radius: 0px 0px 20px 20px; padding: 20px;">
                         {# d-flex y flex-column para empujar boton abajo #}
                         <h5 class="card-title" v-text="producto.nombre"></h5>
                         <p class="card-text" v-text="producto.descripcion"></p>
                         <p class="card-text"><strong>Precio:</strong> <span v-text="producto.precio ? '$' + parseFloat(producto.precio).toFixed(2) : 'N/A'"></span></p>
-                        <button type="button" @click="agregarAlCarrito(producto)" class="btn btn-success mt-auto">Agregar al Carrito</button> {# mt-auto para empujar al fondo #}
+                        <!-- <button type="button" @click="agregarAlCarrito(producto)" class="btn btn-success mt-auto">Agregar al Carrito</button>  -->
+                        <button type="button" @click="agregarAlCarrito(producto)" class="btn btn-success mt-auto btProduct d-block mx-auto" class="btn btn-primary mt-auto btProduct d-block mx-auto">Agregar a carrito</button>
+                        {# mt-auto para empujar al fondo #}
                     </div>
                 </div>
             </div>
@@ -57,6 +60,13 @@
         console.error('Error al obtener negocioIdDesdeDjango del template:', e);
         negocioIdDesdeDjango = null;
     }
+
+    window.addEventListener('busqueda-cambiada', e => {
+    const term = e.detail;
+    // Redirigir a la lista principal filtrada
+    window.location.href = `/?q=${encodeURIComponent(term)}`;
+    });
+
 
     const appProductos = new Vue({
         el: '#app-productos',

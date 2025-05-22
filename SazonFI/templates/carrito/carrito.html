@@ -50,7 +50,6 @@
         <div class="text-right mt-4">
             <button @click="procederAlPago" class="btn btn-primary btn-lg" :disabled="creandoPedido">
                 <span v-if="creandoPedido" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                {# Texto del boton corregido para usar v-if/v-else de Vue #}
                 <span v-if="creandoPedido">Procesando...</span>
                 <span v-else>Hacer Pedido</span>
             </button>
@@ -157,8 +156,13 @@
             },
             actualizarCantidad(item) {
                 console.log('Actualizar cantidad para item ID:', item.id, 'a nueva cantidad:', item.cantidad);
-                if (!item || typeof item.cantidad !== 'number' || item.cantidad < 1) {
-                    alert("La cantidad debe ser al menos 1.");
+                if (!item || typeof item.cantidad !== 'number') {
+                    alert("La cantidad debe ser un número.");
+                    this.fetchCarrito();
+                    return;
+                }
+                if (item.cantidad < 0) {
+                    alert("La cantidad no puede ser negativa.");
                     this.fetchCarrito();
                     return;
                 }
@@ -169,16 +173,21 @@
                     body: JSON.stringify({ cantidad: item.cantidad })
                 })
                     .then(response => {
+                        if (response.status === 204 && item.cantidad === 0) {
+                            return null;
+                        }
                         if (!response.ok) {
                             return response.json().then(errData => {
-                                const msg = errData.detail || errData.cantidad || JSON.stringify(errData);
+                                const msg = errData.detail || errData.error || errData.cantidad || JSON.stringify(errData);
                                 throw new Error(msg || `Error ${response.status}`);
-                            }).catch(() => { throw new Error(`Error ${response.status} actualizando cantidad.`); });
+                            }).catch(() => { throw new Error(`Error ${response.status} actualizando cantidad. Respuesta no es JSON.`); });
                         }
                         return response.json();
                     })
                     .then(data => {
-                        console.log('Cantidad actualizada en backend:', data);
+                        if (data) {
+                            console.log('Cantidad actualizada en backend:', data);
+                        }
                         this.fetchCarrito();
                     })
                     .catch(error => {
@@ -203,7 +212,7 @@
                         } else if (!response.ok) {
                             return response.json().then(errData => {
                                 throw new Error(errData.detail || JSON.stringify(errData) || `Error ${response.status}`);
-                            }).catch(() => { throw new Error(`Error ${response.status} eliminando item.`); });
+                            }).catch(() => { throw new Error(`Error ${response.status} eliminando item. Respuesta no es JSON.`); });
                         } else {
                             console.warn("Respuesta inesperada al eliminar item:", response);
                             this.fetchCarrito();
@@ -229,14 +238,26 @@
                 })
                     .then(response => {
                         if (!response.ok) {
-                            return response.json()
-                                .then(errData => {
-                                    const errorMessage = errData.detail || errData.error || JSON.stringify(errData);
-                                    throw new Error(errorMessage || `Error del servidor: ${response.status}`);
-                                })
-                                .catch(() => {
-                                    throw new Error(`Error del servidor: ${response.status}. Respuesta no es JSON.`);
-                                });
+                            return new Promise((resolve, reject) => {
+                                response.json()
+                                    .then(errorData => {
+                                        // El servidor envió JSON, usamos su mensaje de error.
+                                        const message = errorData.error || errorData.detail || JSON.stringify(errorData);
+                                        reject(new Error(message));
+                                    })
+                                    .catch(jsonParseError => {
+                                        // response.json() falló.
+                                        // El jsonParseError.message podría ser el texto del error si el servidor no envió JSON.
+                                        console.warn(`Respuesta de error del servidor no era JSON (Status: ${response.status}). Error de parseo original:`, jsonParseError);
+                                        if (jsonParseError && jsonParseError.message &&
+                                            !(jsonParseError instanceof SyntaxError)) { // Si no es un SyntaxError típico, su mensaje podría ser el error del servidor.
+                                            reject(jsonParseError); // Propagar el error que ya tiene el mensaje "Stock insuficiente..."
+                                        } else {
+                                            // Si es un SyntaxError o no hay mensaje, usar uno genérico.
+                                            reject(new Error(`Error del servidor: ${response.status}. La respuesta no pudo ser procesada como JSON.`));
+                                        }
+                                    });
+                            });
                         }
                         return response.json();
                     })
@@ -246,7 +267,7 @@
                         this.fetchCarrito();
                     })
                     .catch(error => {
-                        console.error('Error al crear el pedido:', error);
+                        console.error('Error al crear el pedido (captura final):', error);
                         alert(`Error al realizar el pedido: ${error.message}`);
                     })
                     .finally(() => {

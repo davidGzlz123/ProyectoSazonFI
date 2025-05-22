@@ -77,6 +77,23 @@
                         : '$0.00' }}
                 </p>
 
+                <!-- Forma de pago -->
+                <form id="form-pago">
+                    <h5>Selecciona tu método de pago:</h5>
+                    <label>
+                        <input type="radio" name="pago" value="efectivo">
+                        Efectivo
+                    </label><br>
+                    <label>
+                        <input type="radio" name="pago" value="tarjeta">
+                        Tarjeta de crédito o débito
+                    </label><br>
+                    <label>
+                        <input type="radio" name="pago" value="transferencia">
+                        Transferencia bancaria
+                    </label>
+                </form>
+
                 <button @click="procederAlPago" class="btn-pedido" :disabled="creandoPedido">
                     <span v-if="creandoPedido">Procesando...</span>
                     <span v-else>Hacer Pedido</span>
@@ -249,6 +266,30 @@
                     alert("Tu carrito esta vacio.");
                     return;
                 }
+
+                //Verificando que el cliente seleccione un metodo de pago identificando si alguna opción ha sido seleccionada y, dependiendo de esta selección, se le asigna un mensaje diferente.
+                const metodoPago = document.querySelector('input[name="pago"]:checked');
+                if (!metodoPago) {
+                    alert("Por favor selecciona un método de pago.");
+                    return;
+                }
+
+                let mensaje = "";
+                switch (metodoPago.value) {
+                    case "efectivo":
+                        mensaje = "Por favor ten el dinero listo para entregárselo al repartidor.";
+                        break;
+                    case "tarjeta":
+                        mensaje = "El repartidor llevará una terminal para procesar el pago.";
+                        break;
+                    case "transferencia":
+                        mensaje = "Por favor realiza el depósito a la cuenta 638180010119946542 (nu bank/stp) con titular SazónFI Corporation.";
+                        break;
+                }
+
+                // Guardando el mensaje
+                const mensajeFinal = mensaje;
+
                 if (!confirm("¿Estas seguro de que quieres finalizar tu pedido?")) {
                     return;
                 }
@@ -272,7 +313,7 @@
                     })
                     .then(data => {
                         console.log('Pedido creado:', data);
-                        alert('¡Pedido realizado exitosamente! Tu carrito ha sido vaciado.');
+                        alert(`¡Pedido realizado exitosamente! Tu carrito ha sido vaciado. \n\n${mensajeFinal}`);
                         this.fetchCarrito();
                     })
                     .catch(error => {

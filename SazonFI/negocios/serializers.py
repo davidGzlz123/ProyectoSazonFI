@@ -1,6 +1,6 @@
 # negocios/serializers.py
 from rest_framework import serializers
-from .models import Negocio # Asegúrate que Negocio se importe desde los modelos de esta app
+from .models import Negocio # Asegï¿½rate que Negocio se importe desde los modelos de esta app
 
 class NegocioSerializer(serializers.ModelSerializer):
     # Para la subida (write), DRF manejara el archivo.
@@ -20,7 +20,8 @@ class NegocioSerializer(serializers.ModelSerializer):
             'nombre', 
             'descripcion', 
             'direccion', 
-            'telefono', 
+            'telefono',
+            'categoria', 
             'logo', # Para la subida
             'logo_url' # Para la lectura
         ]

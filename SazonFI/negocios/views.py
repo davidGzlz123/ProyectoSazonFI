@@ -17,6 +17,8 @@ from productos.serializers import ProductoSerializer
 from carritos.models import ItemPedido 
 from carritos.serializers import ItemPedidoSerializer 
 
+from django.db.models import Q
+
 User = get_user_model()
 
 class NegocioViewSet(viewsets.ModelViewSet):
@@ -27,23 +29,60 @@ class NegocioViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         action = self.action
-        user_rol_value = getattr(user, 'rol', 'ROL_NO_DEFINIDO_EN_USUARIO') 
+        user_rol_value = getattr(user, 'rol', 'ROL_NO_DEFINIDO_EN_USUARIO')
 
-        print(f"--- DEBUG: NegocioViewSet.get_queryset() --- Action: {action}, User: {user}, Authenticated: {user.is_authenticated}, Rol: '{user_rol_value}'")
+        query = self.request.GET.get('q', '').strip()
+        categoria = self.request.GET.get('categoria', '').lower()
+        orden = self.request.GET.get('orden', '').lower()
+
+        print(f"--- DEBUG: NegocioViewSet.get_queryset() --- Action: {action}, User: {user}, Authenticated: {user.is_authenticated}, Rol: '{user_rol_value}', Query: '{query}', Categoria: '{categoria}', Orden: '{orden}'")
 
         if action == 'list':
             if user.is_authenticated and hasattr(user, 'rol') and user.rol == 'negocio':
-                print(f"--- NegocioViewSet.get_queryset() [LISTA PARA DUEnO DE NEGOCIO] - Usuario: {user.username}, Rol: {user_rol_value} - Filtrando por sus negocios.")
-                return Negocio.objects.filter(usuario=user)
+                queryset = Negocio.objects.filter(usuario=user)
+                if query:
+                    queryset = queryset.filter(
+                        Q(nombre__icontains=query) |
+                        Q(descripcion__icontains=query) |
+                        Q(direccion__icontains=query) |
+                        Q(producto__nombre__icontains=query)
+                    ).distinct()
             else:
-                print(f"--- NegocioViewSet.get_queryset() [LISTA PUBLICA] - Usuario: {user.username if user.is_authenticated else 'Anonimo'}, Rol: {user_rol_value} - Devolviendo todos los negocios.")
-                return Negocio.objects.all() 
+                queryset = Negocio.objects.all()
+                if query:
+                    queryset = queryset.filter(
+                        Q(nombre__icontains=query) |
+                        Q(descripcion__icontains=query) |
+                        Q(direccion__icontains=query) |
+                        Q(producto__nombre__icontains=query)
+                    ).distinct()
+
+            # Filtrado por categoría si es válida
+            if categoria in ['franquicia', 'estudiante']:
+                queryset = queryset.filter(categoria=categoria)
+
+            # Ordenamiento si se indica
+            if orden == 'alfabetico':
+                queryset = queryset.order_by('nombre')
+
+            print(f"--- Lista filtrada y ordenada: {queryset.count()} negocios ---")
+            return queryset
+
         elif user.is_authenticated:
-            print(f"--- NegocioViewSet.get_queryset() [DETALLE/ESCRITURA] - Usuario: {user.username} - Filtrando por sus negocios.")
-            return Negocio.objects.filter(usuario=user)
-        
-        print(f"--- NegocioViewSet.get_queryset() - Fallback - Devolviendo queryset vacio.")
+            queryset = Negocio.objects.filter(usuario=user)
+            if query:
+                queryset = queryset.filter(
+                    Q(nombre__icontains=query) |
+                    Q(descripcion__icontains=query) |
+                    Q(direccion__icontains=query) |
+                    Q(producto__nombre__icontains=query)
+                ).distinct()
+            print(f"--- Detalle/Escritura, filtrados: {queryset.count()} ---")
+            return queryset
+
+        print(f"--- Fallback, queryset vacio ---")
         return Negocio.objects.none()
+
 
     def perform_create(self, serializer): serializer.save(usuario=self.request.user)
     def perform_update(self, serializer):

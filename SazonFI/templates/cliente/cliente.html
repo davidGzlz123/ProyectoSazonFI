@@ -1,8 +1,24 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 
 {% block content %}
-<div id="app-cliente-negocios">
+<div id="app-index-negocios">
     <h1 class="text-center">¡Dale gusto a tu diente hoy!</h1>
+
+    <!-- Botones filtros -->
+    <div class="button-group text-center mb-4">
+        <button class="custom-btn" @click="filtrar('estudiante')">
+            <i class="fa-solid fa-tag"></i>
+            Estudiantes
+        </button>
+        <button class="custom-btn" @click="filtrar('franquicia')">
+            <i class="fa-solid fa-fire"></i>
+            Franquicias
+        </button>
+        <button class="custom-btn" @click="ordenar('alfabetico')">
+            <i class="fa-solid fa-sliders"></i>
+            Orden alfabético
+        </button>
+    </div>
 
     <div class="container mt-4">
         <h2>Negocios Disponibles</h2>
@@ -12,12 +28,10 @@
         <div class="row" v-if="!loading && negocios.length > 0">
             <div class="col-md-4 mb-4" v-for="negocio in negocios" :key="negocio.id">
                 <div class="card h-100 div-local">
-                    {# --- IMAGEN DEL LOGO DEL NEGOCIO CON FALLBACK MEJORADO --- #}
                     <img :src="negocio.logo_url || 'https://placehold.co/300x180/EFEFEF/AAAAAA?text=Sin+Logo'"
                         class="card-img-top cardIMG"
                         :alt="'Logo de ' + negocio.nombre"
                         @error="handleImageError">
-
                     <div class="card-body d-flex flex-column localInfo">
                         <h5 class="card-title" v-text="negocio.nombre"></h5>
                         <p class="card-text" v-text="negocio.descripcion"></p>
@@ -26,6 +40,7 @@
                 </div>
             </div>
         </div>
+
         <div v-if="!loading && !error && negocios.length === 0" class="alert alert-warning">
             No hay negocios disponibles en este momento.
         </div>
@@ -36,70 +51,82 @@
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
 <script>
-    const appClienteNegocios = new Vue({
-        el: '#app-cliente-negocios',
-        data: {
-            negocios: [],
-            loading: true,
-            error: null,
+const appIndexNegocios = new Vue({
+    el: '#app-index-negocios',
+    data: {
+        negocios: [],
+        loading: true,
+        error: null,
+        currentQuery: '',
+        filtroCategoria: '',
+        ordenActual: '',
+    },
+    mounted() {
+        const params = new URLSearchParams(window.location.search);
+        this.currentQuery = params.get('q') || '';
+        this.filtroCategoria = params.get('categoria') || '';
+        this.ordenActual = params.get('orden') || '';
+
+        this.cargarNegocios();
+
+        window.addEventListener('busqueda-cambiada', (e) => {
+            this.currentQuery = e.detail;
+            this.filtroCategoria = '';
+            this.ordenActual = '';
+            this.cargarNegocios();
+        });
+    },
+    methods: {
+        cargarNegocios() {
+            this.loading = true;
+            this.error = null;
+            let url = '/api/negocios/?';
+            if (this.currentQuery) url += `q=${encodeURIComponent(this.currentQuery)}&`;
+            if (this.filtroCategoria) url += `categoria=${encodeURIComponent(this.filtroCategoria)}&`;
+            if (this.ordenActual) url += `orden=${encodeURIComponent(this.ordenActual)}&`;
+
+            // Actualiza la URL sin recargar la página
+            const newUrl = `${window.location.pathname}?${url.split('?')[1]}`;
+            window.history.replaceState({}, '', newUrl);
+
+            fetch(url)
+                .then(res => {
+                    if (!res.ok) throw new Error('Error al cargar negocios');
+                    return res.json();
+                })
+                .then(data => {
+                    this.negocios = data;
+                })
+                .catch(err => {
+                    this.error = err.message;
+                })
+                .finally(() => {
+                    this.loading = false;
+                });
         },
-        mounted() {
-            this.fetchNegocios();
+        filtrar(categoria) {
+            this.filtroCategoria = categoria;
+            this.ordenActual = '';
+            this.currentQuery = '';
+            this.cargarNegocios();
         },
-        methods: {
-            fetchNegocios() {
-                this.loading = true;
-                this.error = null;
-                fetch('/api/negocios/')
-                    .then(response => {
-                        if (!response.ok) {
-                            return response.json().then(errData => {
-                                throw new Error(errData.detail || JSON.stringify(errData) || `Error HTTP ${response.status}`);
-                            }).catch(() => {
-                                throw new Error(`Error HTTP ${response.status} al cargar negocios.`);
-                            });
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        console.log("Negocios recibidos de la API:", JSON.parse(JSON.stringify(data)));
-                        if (Array.isArray(data)) {
-                            this.negocios = data;
-                        } else if (data && Array.isArray(data.results)) {
-                            this.negocios = data.results;
-                        } else {
-                            this.negocios = [];
-                            console.warn("Estructura de respuesta de /api/negocios/ no reconocida o vacia.");
-                        }
-                        if (this.negocios.length > 0) {
-                            console.log("Primer negocio (para verificar logo_url):", this.negocios[0]);
-                            // Verifica si logo_url es la URL de placeholder esperada
-                            if (this.negocios[0].logo_url && this.negocios[0].logo_url.includes('placehold.co')) {
-                                console.log("El primer negocio esta usando una URL de placeholder para el logo.");
-                            }
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error en fetchNegocios:', error);
-                        this.error = error.message;
-                    })
-                    .finally(() => {
-                        this.loading = false;
-                    });
-            },
-            verProductos(negocioId) {
-                window.location.href = `/negocios/${negocioId}/productos/`;
-            },
-            handleImageError(event) {
-                console.warn("Error cargando imagen:", event.target.src, "Se intentara cargar placeholder alternativo.");
-                // Fallback si incluso el placeholder en :src falla o si la URL original era un placeholder que fallo.
-                // Evitar bucles de error si el placeholder tambien falla.
-                if (!event.target.src.includes('placehold.co/400x200')) { // Evitar recargar el mismo placeholder si falla
-                    event.target.src = 'https://placehold.co/400x200/CCCCCC/999999?text=Logo+No+Disponible';
-                }
-                event.target.onerror = null; // Prevenir bucles de error si el segundo placeholder tambien falla
+        ordenar(orden) {
+            this.ordenActual = orden;
+            this.filtroCategoria = '';
+            this.currentQuery = '';
+            this.cargarNegocios();
+        },
+        verProductos(id) {
+            window.location.href = `/negocios/${id}/productos/`;
+        },
+        handleImageError(event) {
+            const placeholderNeutral = 'https://placehold.co/300x180/EFEFEF/AAAAAA?text=Logo+No+Disponible';
+            if (event.target.src !== placeholderNeutral) {
+                event.target.src = placeholderNeutral;
             }
+            event.target.onerror = null;
         }
-    });
+    }
+});
 </script>
 {% endblock %}

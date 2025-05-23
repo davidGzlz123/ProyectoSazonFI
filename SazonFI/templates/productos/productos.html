@@ -6,7 +6,7 @@
         <h1>Productos de {{ negocio.nombre }}</h1>
         <div class="row">
             <div class="col-md-4 mb-4" v-for="producto in productos">
-                <div class="card">
+                <div class="card h-100 div-local">
                     <img :src="producto.imagen" class="card-img-top" alt="Producto">
                     <div class="card-body">
                         <h5 class="card-title">{{ producto.nombre }}</h5>
@@ -54,8 +54,9 @@
                     .catch(error => console.error('Error:', error));
             },
             agregarAlCarrito(producto) {
-                // Lógica para agregar el producto al carrito
-                alert(`Producto "${producto.nombre}" agregado al carrito.`);
+                // Lógica para agregar el producto al 
+                mostrarFeedback(`Producto "${producto.nombre}" agregado al carrito`, "success", 3000);
+                //alert(`Producto "${producto.nombre}" agregado al carrito.`);
             }
         }
     });

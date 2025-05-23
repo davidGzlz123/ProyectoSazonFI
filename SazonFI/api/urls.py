@@ -3,7 +3,7 @@ from django.urls import path, include
 from rest_framework import routers
 from rest_framework_nested import routers as nested_routers
 
-from .views import RegistroUsuarioViewSet, InicioSesionAPIView 
+from .views import RegistroUsuarioViewSet, InicioSesionAPIView, LogoutAPIView
 from negocios.views import NegocioViewSet
 from productos.views import ProductoViewSet as MainProductoViewSet 
 from negocios.views import ProductoViewSet as NegociosProductoViewSet 
@@ -14,7 +14,7 @@ from carritos.views import (
     CrearPedidoAPIView,
     ItemCarritoViewSet,
     MisPedidosAPIView,
-    GestionPedidoViewSet 
+    GestionPedidoViewSet
 )
 
 router = routers.DefaultRouter()
@@ -42,7 +42,7 @@ urlpatterns = [
     path('', include(negocios_api_router.urls)), # Esto es importante para las rutas anidadas
     
     path('login/', InicioSesionAPIView.as_view(), name='api-login'),
-
+    path('logout/', LogoutAPIView.as_view(), name='api-logout'),
     path('carrito/agregar/', AgregarItemCarritoAPIView.as_view(), name='api_carrito_agregar_item'),
     path('carrito/', VerCarritoAPIView.as_view(), name='api_ver_carrito'), 
     path('pedidos/crear/', CrearPedidoAPIView.as_view(), name='api_crear_pedido'),

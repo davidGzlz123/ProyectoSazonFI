@@ -2,7 +2,7 @@
 
 {% block content %}
 <div id="app-negocio" class="container mt-4">
-    <h1>Panel de Administracion de Negocios</h1>
+    <h1>Panel de Administracion de Negocios para {% if user.is_authenticated and user.rol == 'negocio' %}<span class="sazonfi-highlight">{{ user.username }}{% endif %}</span></h1>
     <hr>
 
     <ul class="nav nav-tabs mb-3" id="panelNegocioTabs" role="tablist">
@@ -134,10 +134,6 @@
 
         <div class="tab-pane fade" :class="{ 'show active': activeTab === 'pedidos' }" id="pedidos" role="tabpanel" aria-labelledby="pedidos-tab">
             <h2>Gestionar Pedidos</h2>
-            <div class="alert alert-secondary my-2" v-if="opcionesEstadoPedido && opcionesEstadoPedido.length > 0">
-                Depuración: Hay <span v-text="opcionesEstadoPedido.length"></span> opciones de estado disponibles.
-                <span v-if="opcionesEstadoPedido[0]">Primera opción (texto via Vue): <span v-text="opcionesEstadoPedido[0].texto"></span></span>
-            </div>
             <div class="alert alert-danger my-2" v-else>
                 Depuración: 'opcionesEstadoPedido' está vacía o no es un array.
             </div>
@@ -410,7 +406,8 @@
                         if (responseData) { if (responseData.detail) errorMessage = responseData.detail; else if (typeof responseData === 'object') errorMessage = JSON.stringify(responseData); else if (typeof responseData === 'string') errorMessage = responseData; }
                         throw new Error(errorMessage);
                     }
-                    alert(`Negocio ${esCrear ? 'creado' : 'actualizado'} exitosamente!`);
+                    mostrarFeedback(`Negocio ${esCrear ? 'creado' : 'actualizado'} exitosamente`, "success",3000)
+                    //alert(`Negocio ${esCrear ? 'creado' : 'actualizado'} exitosamente!`);
                     await this.cargarNegociosUsuario();
                     this.prepararNuevoNegocio();
                     this.selectTab('lista');
@@ -551,7 +548,8 @@
                         }
                         throw new Error(errorMessage);
                     }
-                    alert(`Estado del Pedido #${pedidoId} actualizado a ${responseData.estado}.`);
+                    //alert(`Estado del Pedido #${pedidoId} actualizado a ${responseData.estado}.`);
+                    mostrarFeedback(`Estado del Pedido #${pedidoId} actualizado a ${responseData.estado}.`, "info",3000)
                     this.cargarPedidosDelNegocio();
                 } catch (error) {
                     this.mostrarError(`Error actualizando estado: ${error.message}`, 'pedidosNegocio');

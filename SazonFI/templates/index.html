@@ -2,7 +2,7 @@
 
 {% block content %}
 <div id="app-index-negocios">
-    <h1 class="text-center">Bienvenido a SazonFI</h1>
+    <h1 class="text-center">Bienvenido a <span class="sazonfi-highlight">SazonFI</span><span class="brand-m">&reg;</span></h1>
     <p class="lead text-center">Explora los negocios disponibles y descubre sus productos.</p>
     <hr>
 
@@ -34,14 +34,12 @@
                          class="card-img-top cardIMG"
                          :alt="'Logo de ' + (negocio.nombre || 'Negocio')"
                          @error="handleImageError($event, negocio.nombre)">
-                    <div class="card-body d-flex flex-column localInfo">
+                    <div class="card-body d-flex flex-column">
                         <h5 class="card-title" v-text="negocio.nombre"></h5>
                         <div class="flex-grow-1 overflow-auto mb-3 desc-scroll" style="max-height:120px;">
                             <p class="card-text" v-text="negocio.descripcion"></p>
                         </div>
-                        <button @click="verProductos(negocio.id)" class="btn btn-primary mt-auto btProduct d-block mx-auto" style="background-color: rgba(255, 99, 71, 0.343);">
-                            Ver Productos
-                        </button>
+                        <button @click="verProductos(negocio.id)" class="btn btn-primary mt-auto btProduct d-block mx-auto">Ver Productos</button>
                     </div>
                 </div>
             </div>

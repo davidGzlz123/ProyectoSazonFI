@@ -3,7 +3,8 @@ from rest_framework import viewsets, permissions
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authtoken.models import Token
-from django.contrib.auth import authenticate, login # <--- IMPORTANTE: A�adir 'login'
+from django.contrib.auth import authenticate, login 
+from django.contrib.auth import logout as django_logout
 from usuarios.models import Usuario 
 from usuarios.serializers import UsuarioSerializer 
 from rest_framework.views import APIView
@@ -11,6 +12,7 @@ from rest_framework import status
 from negocios.models import Negocio
 from negocios.serializers import NegocioSerializer
 from django.db.models import Q
+
 
 class RegistroUsuarioViewSet(viewsets.ViewSet):
     permission_classes = [permissions.AllowAny]
@@ -80,3 +82,27 @@ def get_queryset(self):
         queryset = queryset.order_by('nombre')
 
     return queryset
+
+
+
+class LogoutAPIView(APIView):
+    """
+    Vista para cerrar la sesión de Django del usuario autenticado.
+    También invalida el token de DRF si se quisiera (aunque el logout de sesión es lo principal aquí).
+    """
+    permission_classes = [permissions.IsAuthenticated] # Solo usuarios autenticados pueden desloguearse
+
+    def post(self, request, *args, **kwargs):
+        try:
+            # Opcional: Invalidar el token de DRF si lo estás usando y quieres que no se pueda reutilizar
+            # request.user.auth_token.delete()
+            pass # No borraremos el token por ahora, solo cerraremos la sesión de Django
+        except Exception as e:
+            # Manejar el caso donde el usuario no tenga un token (ej. solo sesión) o ya esté borrado
+            print(f"Error al intentar borrar el token: {e}")
+            pass
+
+        django_logout(request) # Cierra la sesión de Django
+        
+        return Response({"detail": "Logout de sesión de Django exitoso."}, status=status.HTTP_200_OK)
+

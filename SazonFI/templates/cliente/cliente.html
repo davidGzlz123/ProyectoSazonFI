@@ -2,7 +2,9 @@
 
 {% block content %}
 <div id="app-index-negocios">
-    <h1 class="text-center">¡Dale gusto a tu diente hoy!</h1>
+    <h1 class="text-center">
+        ¡Dale gusto a tu diente hoy{% if user.is_authenticated and user.rol == 'cliente' %}, <span class="sazonfi-highlight">{{ user.username }}{% endif %}</span>!
+    </h1>
 
     <!-- Botones filtros -->
     <div class="button-group text-center mb-4">
@@ -32,7 +34,7 @@
                         class="card-img-top cardIMG"
                         :alt="'Logo de ' + negocio.nombre"
                         @error="handleImageError">
-                    <div class="card-body d-flex flex-column localInfo">
+                    <div class="card-body d-flex flex-column">
                         <h5 class="card-title" v-text="negocio.nombre"></h5>
                         <p class="card-text" v-text="negocio.descripcion"></p>
                         <button @click="verProductos(negocio.id)" class="btn btn-primary mt-auto btProduct d-block mx-auto">Ver Productos</button>
@@ -92,6 +94,7 @@ const appIndexNegocios = new Vue({
             fetch(url)
                 .then(res => {
                     if (!res.ok) throw new Error('Error al cargar negocios');
+                    //mostrarFeedback("Error al cargar negocios","warning",3000)
                     return res.json();
                 })
                 .then(data => {

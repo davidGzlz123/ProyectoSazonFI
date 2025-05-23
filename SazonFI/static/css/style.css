@@ -1,7 +1,7 @@
 ﻿/* Colores usados en toda la página */
 :root {
     --fondoNavFot: #E2715B;
-    --fondo: #FFF8E0;
+    --fondo: #F7F7F7;
 }
 
 body{
@@ -51,8 +51,19 @@ body{
     color: #00000021;
 }
 
+/* Título personalizado de SazonFI */
+.sazonfi-highlight {
+    color: #E2715B; 
+    font-weight: bold;
+}
+
+/* Marca Registrada */
+.brand-m {
+    color: #5A5A5A;
+    font-size: 35px;
+}
 /* ------------------- FOOTER ---------------- */
-footer{
+footer {
     background-color: var(--fondoNavFot);
 }
 
@@ -61,12 +72,12 @@ footer{
     padding: 20px;
 }
 
-.card-body{
-    background-color: rgba(217, 217, 217, 0.709);
+.card-body {
+    background-color: white;
+    background-color: white;
     border-radius: 20px;
-    padding: 15px 20px 0px 20px;
+    padding: 15px 20px 15px 20px;
 }
-
 .btLogin{
     background-color: #E2715B70;
     border-radius: 20px;
@@ -98,12 +109,12 @@ footer{
 }
 
 /* ------------HOME VIEW------------------- */
-.custom-btn{
+.custom-btn {
     background-color: #E2715B70;
     border-radius: 10px;
     border: none;
-    padding: 5px 20px 5px 20px;
-    color: var(--fondoNavFot);
+    padding: 5px 20px 5px 25px;
+    color: #804d57;
 }
 
 .custom-btn:hover{
@@ -118,17 +129,28 @@ button.custom-btn:active {
 }
 
 
-.div-local{
-    border-radius: 20px;
+.div-local {
+    background-color: #FFFFFF;
+    border-radius: 10px;
+    color: black;
+    border: none;
+    padding: 8px 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transition: box-shadow 0.3s ease-in-out, transform 0.2s ease;
 }
 
-.cardIMG{
-    height: 180px; 
-    object-fit: cover; 
-    border: 1px solid #D9D9D931; 
+.cardIMG {
+    height: 180px;
+    object-fit: contain; 
+    border: 1px solid #D9D9D931;
     background-color: #f8f9fa; 
     border-radius: 20px 20px 0px 0px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
 }
+
 
 .localInfo{
     background-color: #e2725bbe; 
@@ -154,16 +176,24 @@ button.custom-btn:active {
 }
 
 
-.btProduct{
-    background-color: #c8c8c8;
+.btProduct {
+    background-color: #FFFFFF;
     border-radius: 10px;
-    color: rgba(0, 0, 0, 0.517);
+    color: coral;
+    font-weight: bold;
+    font-size: 14px;
     border: none;
     width: 150px;
+    padding: 8px 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: box-shadow 0.3s ease-in-out, transform 0.2s ease;
 }
 
 .btProduct:hover{
     background-color: var(--fondoNavFot);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    transform: translateY(-1px);
+
 }
 
 .btProduct:focus,

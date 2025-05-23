@@ -16,7 +16,7 @@
 
         <div class="row" v-if="productos.length > 0">
             <div class="col-md-4 mb-4" v-for="producto in productos" :key="producto.id">
-                <div class="card h-100" style="border-radius: 0px 0px 20px 20px;">
+                <div class="card h-100 div-local" style="border-radius: 0px 0px 20px 20px;">
                     {# h-100 para igualar altura de tarjetas #}
                     {# --- MOSTRAR IMAGEN DEL PRODUCTO --- #}
                     <img :src="producto.imagen_url"
@@ -137,13 +137,15 @@
                 const rol = localStorage.getItem('rol');
 
                 if (!this.token || rol !== 'cliente') {
-                    alert('Favor de iniciar sesion como cliente para agregar productos al carrito.');
+                    mostrarFeedback('Favor de iniciar sesion como Cliente para agregar productos al carrito.',"info",3000)
+                    //alert('Favor de iniciar sesion como cliente para agregar productos al carrito.');
                     return;
                 }
 
                 if (typeof this.negocioId !== 'number' || this.negocioId <= 0) {
                     console.error('Error critico: ID del negocio no disponible en agregarAlCarrito.', this.negocioId);
-                    alert('Error: No se pudo identificar el negocio para este producto. Por favor, recarga la pagina.');
+                    mostrarFeedback('Error: No se pudo identificar el negocio para este producto. Por favor, recarga la pagina.', "warning", 3000)
+                    //alert('Error: No se pudo identificar el negocio para este producto. Por favor, recarga la pagina.');
                     return;
                 }
 
@@ -180,11 +182,13 @@
                 })
                 .then(data => {
                     console.log('Respuesta del servidor (carrito):', data);
-                    alert('¡Producto agregado al carrito exitosamente!');
+                    mostrarFeedback('¡Producto agregado al carrito exitosamente!', "success",3000)
+                    //alert('¡Producto agregado al carrito exitosamente!');
                 })
                 .catch(error => {
                     console.error('Error al agregar al carrito:', error);
-                    alert(`Error al agregar al carrito: ${error.message}`);
+                    mostrarFeedback(`Error al agregar al carrito: "${error.message}"`, "warning", 3000)
+                    //alert(`Error al agregar al carrito: ${error.message}`);
                 });
             }
         }

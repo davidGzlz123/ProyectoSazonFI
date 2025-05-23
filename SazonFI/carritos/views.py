@@ -7,7 +7,7 @@ import traceback
 from rest_framework import viewsets, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, APIException # Importar APIException
 
 
 # Importaciones de Modelos
@@ -130,8 +130,14 @@ class ItemCarritoViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(item, context={'request': request}) # Pasar contexto
         return Response(serializer.data)
 
+class StockInsuficienteError(APIException): # Clase de excepción personalizada
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = 'Stock insuficiente para uno o mas productos.'
+    default_code = 'stock_insufficient'
+
 class CrearPedidoAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+
     def post(self, request, *args, **kwargs):
         try:
             carrito = get_object_or_404(Carrito, usuario=request.user)
@@ -140,16 +146,24 @@ class CrearPedidoAPIView(APIView):
                 return Response({"error": "Tu carrito esta vacio."}, status=status.HTTP_400_BAD_REQUEST)
             
             with transaction.atomic():
+                # Validar stock antes de crear el pedido
+                for item_c_val in items_carrito:
+                    prod_val = item_c_val.producto
+                    if prod_val is None:
+                        # Este caso debería manejarse de forma más robusta, quizás eliminando items con productos nulos del carrito
+                        return Response({"error": f"Un producto en tu carrito (ID original: {item_c_val.producto_id if hasattr(item_c_val, 'producto_id') else 'desconocido'}) ya no esta disponible."}, status=status.HTTP_400_BAD_REQUEST)
+                    if prod_val.stock < item_c_val.cantidad:
+                        # Devolver una respuesta 400 directamente con el mensaje de error específico
+                        raise StockInsuficienteError(detail=f"Stock insuficiente para el producto: {prod_val.nombre}. Disponible: {prod_val.stock}, Solicitado: {item_c_val.cantidad}")
+
                 pedido = Pedido.objects.create(usuario=request.user)
                 total_pedido_calculado = 0
                 
                 for item_c in items_carrito:
                     prod = item_c.producto
-                    if prod is None: # Si el producto fue eliminado (SET_NULL)
-                        raise Exception(f"Un producto en tu carrito (ID original: {item_c.producto_id if hasattr(item_c, 'producto_id') else 'desconocido'}) ya no esta disponible.")
-                    
-                    if prod.stock < item_c.cantidad:
-                        raise Exception(f"Stock insuficiente para el producto: {prod.nombre}. Disponible: {prod.stock}, Solicitado: {item_c.cantidad}")
+                    # La validación de stock ya se hizo arriba, pero una doble verificación no está de más
+                    # o se podría asumir que el stock es suficiente si se pasó la validación anterior.
+                    # Aquí procedemos directamente a descontar.
                     
                     ItemPedido.objects.create(
                         pedido=pedido, 
@@ -179,9 +193,12 @@ class CrearPedidoAPIView(APIView):
             return Response({"error": "No se encontro un carrito para este usuario."}, status=status.HTTP_404_NOT_FOUND)
         except Producto.DoesNotExist: 
             return Response({"error": "Uno de los productos en el carrito ya no existe."}, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
+        except StockInsuficienteError as e: # Capturar la excepción personalizada
+            return Response({"error": str(e.detail)}, status=e.status_code)
+        except Exception as e: # Capturar otras excepciones inesperadas
             traceback.print_exc()
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            # Para errores inesperados, sí es apropiado un 500
+            return Response({"error": "Ocurrio un error inesperado en el servidor al procesar el pedido."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class MisPedidosAPIView(APIView):

@@ -8,99 +8,98 @@
         Cargando carrito...
     </div>
 
-    <div v-if="error" class="alert alert-danger mt-3">
-        Error al cargar el carrito: {{ error }}
-    </div>
-
     <div v-if="!loading && !error && carrito && carrito.items && carrito.items.length > 0" class="row">
-        <!-- Productos carrito -->
         <div class="col-md-8">
-            <div class="table-responsive"> 
-            <table class="table table-hover mt-3 text-center infoTable">
-            <thead class=" name-list"> 
-                <!-- head-light -->
-                <tr>
-                <th scope="col">Producto</th>
-                <th scope="col">Negocio</th>
-                <th scope="col">Cantidad</th>
-                <th scope="col">Precio Unitario</th>
-                <th scope="col">Subtotal</th>
-                <th scope="col">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="item in carrito.items" :key="item.id">
-                <td v-text="item.producto ? item.producto.nombre : 'Producto Desconocido'"></td>
-                <td v-text="item.negocio ? item.negocio.nombre : 'N/A'"></td>
-                <td class="text-center">
-                    <input
-                    type="number"
-                    v-model.number="item.cantidad"
-                    @change="actualizarCantidad(item)"
-                    min="1"
-                    class="form-control form-control-sm"
-                    style="width: 70px; display: inline-block;"
-                    >
-                </td>
-                <td class="text-right"
-                    v-text=" item.precio_al_agregar != null
+            <div class="table-responsive">
+                <table class="table table-hover mt-3 text-center infoTable">
+                    <thead class=" name-list">
+                        <tr>
+                            <th scope="col">Producto</th>
+                            <th scope="col">Negocio</th>
+                            <th scope="col">Cantidad</th>
+                            <th scope="col">Precio Unitario</th>
+                            <th scope="col">Subtotal</th>
+                            <th scope="col">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="item in carrito.items" :key="item.id">
+                            <td v-text="item.producto ? item.producto.nombre : 'Producto Desconocido'"></td>
+                            <td v-text="item.negocio ? item.negocio.nombre : 'N/A'"></td>
+                            <td class="text-center">
+                                <input type="number"
+                                       v-model.number="item.cantidad"
+                                       @change="actualizarCantidad(item)"
+                                       min="1"
+                                       class="form-control form-control-sm"
+                                       style="width: 70px; display: inline-block;">
+                            </td>
+                            <td class="text-right"
+                                v-text=" item.precio_al_agregar != null
                             ? '$' + parseFloat(item.precio_al_agregar).toFixed(2)
                             : '$0.00' ">
-                </td>
-                <td class="text-right"
-                    v-text=" item.subtotal != null
+                            </td>
+                            <td class="text-right"
+                                v-text=" item.subtotal != null
                             ? '$' + parseFloat(item.subtotal).toFixed(2)
                             : '$0.00' ">
-                </td>
-                <td class="text-center">
-                    <button
-                    @click="eliminarItem(item.id)"
-                    class="btn btn-danger btn-sm"
-                    >
-                    <img src="{{ MEDIA_URL }}principal/trash.png" alt="Eliminar producto" width="30" height="30">
-                    </button>
-                </td>
-                </tr>
-            </tbody>
-            <!-- ¡NO más <tfoot> aquí! -->
-            </table>
+                            </td>
+                            <td class="text-center">
+                                <button @click="confirmarEliminarItem(item.id)"
+                                        class="btn btn-danger btn-sm">
+                                    <img src="{{ MEDIA_URL }}principal/trash.png" alt="Eliminar producto" width="30" height="30">
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
-        <!-- Total -->
-        <div class="total-block totalDiv">
-            <div class="total-header text-center"><h3>Total del carrito</h3></div>
-            <div class="divtext-bt text-center">
-                <p class="total-text" style="font-size: 30px;">
-                    {{ carrito.total_carrito != null 
-                        ? '$' + parseFloat(carrito.total_carrito).toFixed(2)
-                        : '$0.00' }}
-                </p>
+        <div class="col-md-4">
+            <div class="total-block totalDiv mt-3">
+                <div class="total-header text-center"><h3>Total del carrito</h3></div>
+                <div class="divtext-bt text-center">
+                    <p class="total-text" style="font-size: 30px;">
+                        {{
+ carrito.total_carrito != null
+                            ? '$' + parseFloat(carrito.total_carrito).toFixed(2)
+                            : '$0.00'
+                        }}
+                    </p>
 
-                <!-- Forma de pago -->
-                <form id="form-pago">
-                    <h5>Selecciona tu método de pago:</h5>
-                    <label>
-                        <input type="radio" name="pago" value="efectivo">
-                        Efectivo
-                    </label><br>
-                    <label>
-                        <input type="radio" name="pago" value="tarjeta">
-                        Tarjeta de crédito o débito
-                    </label><br>
-                    <label>
-                        <input type="radio" name="pago" value="transferencia">
-                        Transferencia bancaria
-                    </label>
-                </form>
+                    <form id="form-pago" class="my-3">
+                        <h5>Selecciona tu método de pago:</h5>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="metodoPago" id="pagoEfectivo" value="efectivo" checked>
+                            <label class="form-check-label" for="pagoEfectivo">
+                                Efectivo
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="metodoPago" id="pagoTarjeta" value="tarjeta">
+                            <label class="form-check-label" for="pagoTarjeta">
+                                Tarjeta de crédito o débito
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="metodoPago" id="pagoTransferencia" value="transferencia">
+                            <label class="form-check-label" for="pagoTransferencia">
+                                Transferencia bancaria
+                            </label>
+                        </div>
+                    </form>
 
-                <button @click="procederAlPago" class="btn-pedido" :disabled="creandoPedido">
-                    <span v-if="creandoPedido">Procesando...</span>
-                    <span v-else>Hacer Pedido</span>
-                </button>
+                    <div class="text-center mt-2">
+                        <button @click="confirmarProcederAlPago" class="btn btn-primary btn-lg btn-block" :disabled="creandoPedido || !carrito || !carrito.items || carrito.items.length === 0">
+                            <span v-if="creandoPedido" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            <span v-if="creandoPedido">Procesando...</span>
+                            <span v-else>Hacer Pedido</span>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
-
     </div>
 
 
@@ -113,30 +112,6 @@
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
 <script>
-    // Funcion para obtener el valor de una cookie (para CSRF si es necesario)
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-    const csrftoken = getCookie('csrftoken');
-
-    window.addEventListener('busqueda-cambiada', e => {
-    const term = e.detail;
-    // Redirigir a la lista principal filtrada
-    window.location.href = `/?q=${encodeURIComponent(term)}`;
-    });
-
-
     const appCarrito = new Vue({
         el: '#app-carrito',
         data: {
@@ -144,7 +119,8 @@
             loading: true,
             error: null,
             token: localStorage.getItem('token'),
-            creandoPedido: false
+            creandoPedido: false,
+            metodoPagoSeleccionado: 'efectivo' // Para almacenar el método de pago
         },
         computed: {
             apiHeaders() {
@@ -152,9 +128,6 @@
                     'Authorization': `Token ${this.token}`,
                     'Content-Type': 'application/json'
                 };
-                if (csrftoken) {
-                    headers['X-CSRFToken'] = csrftoken;
-                }
                 return headers;
             }
         },
@@ -162,6 +135,7 @@
             if (!this.token) {
                 this.error = "Debes iniciar sesion para ver tu carrito.";
                 this.loading = false;
+                mostrarFeedback(this.error, "warning");
                 return;
             }
             this.fetchCarrito();
@@ -171,161 +145,146 @@
                 this.loading = true;
                 this.error = null;
                 fetch('/api/carrito/', {
-                    headers: {
-                        'Authorization': `Token ${this.token}`
-                    }
+                    headers: { 'Authorization': `Token ${this.token}` }
                 })
                     .then(response => {
                         if (!response.ok) {
                             return response.json()
-                                .then(errData => {
-                                    const errorMessage = errData.detail || errData.error || JSON.stringify(errData);
-                                    throw new Error(errorMessage || `Error HTTP ${response.status} al obtener el carrito.`);
-                                })
-                                .catch(() => {
-                                    throw new Error(`Error HTTP ${response.status} al obtener el carrito. Respuesta no es JSON.`);
-                                });
+                                .then(errData => { throw new Error(errData.detail || errData.error || JSON.stringify(errData) || `Error HTTP ${response.status}`); })
+                                .catch(() => { throw new Error(`Error HTTP ${response.status} al obtener el carrito.`); });
                         }
                         return response.json();
                     })
-                    .then(data => {
-                        this.carrito = data;
-                        console.log('Carrito cargado:', JSON.parse(JSON.stringify(this.carrito)));
-                        if (this.carrito && this.carrito.items && this.carrito.items.length > 0) {
-                            console.log('Primer item del carrito (para depurar nombres):', JSON.parse(JSON.stringify(this.carrito.items[0])));
-                            if (this.carrito.items[0].producto) {
-                                console.log('Producto del primer item:', JSON.parse(JSON.stringify(this.carrito.items[0].producto)));
-                            }
-                            if (this.carrito.items[0].negocio) {
-                                console.log('Negocio del primer item:', JSON.parse(JSON.stringify(this.carrito.items[0].negocio)));
-                            }
-                        }
-                    })
+                    .then(data => { this.carrito = data; })
                     .catch(error => {
-                        console.error('Error en fetchCarrito:', error);
                         this.error = error.message;
+                        console.error('Error en fetchCarrito:', error);
+                        mostrarFeedback(`Error al cargar el carrito: ${error.message}`, "danger");
                     })
-                    .finally(() => {
-                        this.loading = false;
-                    });
+                    .finally(() => { this.loading = false; });
             },
             actualizarCantidad(item) {
-                console.log('Actualizar cantidad para item ID:', item.id, 'a nueva cantidad:', item.cantidad);
-                if (!item || typeof item.cantidad !== 'number' || item.cantidad < 1) {
-                    alert("La cantidad debe ser al menos 1.");
-                    this.fetchCarrito();
-                    return;
+                if (!item || typeof item.cantidad !== 'number') {
+                    mostrarFeedback("La cantidad debe ser un número.", "danger");
+                    this.fetchCarrito(); return;
                 }
-
+                if (item.cantidad < 0) {
+                    mostrarFeedback("La cantidad no puede ser negativa.", "danger");
+                    this.fetchCarrito(); return;
+                }
                 fetch(`/api/carrito-items/${item.id}/`, {
                     method: 'PATCH',
                     headers: this.apiHeaders,
                     body: JSON.stringify({ cantidad: item.cantidad })
                 })
                     .then(response => {
+                        if (response.status === 204 && item.cantidad === 0) return null;
                         if (!response.ok) {
-                            return response.json().then(errData => {
-                                const msg = errData.detail || errData.cantidad || JSON.stringify(errData);
-                                throw new Error(msg || `Error ${response.status}`);
-                            }).catch(() => { throw new Error(`Error ${response.status} actualizando cantidad.`); });
+                            return response.json().then(errData => { throw new Error(errData.detail || errData.error || errData.cantidad || JSON.stringify(errData) || `Error ${response.status}`); })
+                                .catch(() => { throw new Error(`Error ${response.status} actualizando cantidad.`); });
                         }
                         return response.json();
                     })
                     .then(data => {
-                        console.log('Cantidad actualizada en backend:', data);
+                        if (data) mostrarFeedback("Cantidad actualizada.", "success", 2000);
+                        else if (item.cantidad === 0) mostrarFeedback("Producto eliminado del carrito.", "info", 2000);
                         this.fetchCarrito();
                     })
                     .catch(error => {
                         console.error("Error actualizando cantidad:", error);
-                        alert(`Error actualizando cantidad: ${error.message}`);
+                        mostrarFeedback(`Error al actualizar cantidad: ${error.message}`, "danger");
                         this.fetchCarrito();
                     });
             },
-            eliminarItem(itemId) {
-                console.log('Intentando eliminar item ID:', itemId);
-                if (!confirm("¿Estas seguro de que quieres eliminar este producto del carrito?")) {
-                    return;
-                }
+            confirmarEliminarItem(itemId) {
+                mostrarConfirmacion(
+                    "¿Estas seguro de que quieres eliminar este producto del carrito?",
+                    () => {
+                        this.procederEliminarItem(itemId);
+                    }
+                );
+            },
+            procederEliminarItem(itemId) {
                 fetch(`/api/carrito-items/${itemId}/`, {
                     method: 'DELETE',
                     headers: this.apiHeaders
                 })
                     .then(response => {
                         if (response.status === 204) {
-                            console.log('Item eliminado exitosamente del backend.');
+                            mostrarFeedback("Producto eliminado del carrito.", "success");
                             this.fetchCarrito();
                         } else if (!response.ok) {
-                            return response.json().then(errData => {
-                                throw new Error(errData.detail || JSON.stringify(errData) || `Error ${response.status}`);
-                            }).catch(() => { throw new Error(`Error ${response.status} eliminando item.`); });
+                            return response.json().then(errData => { throw new Error(errData.detail || JSON.stringify(errData) || `Error ${response.status}`); })
+                                .catch(() => { throw new Error(`Error ${response.status} eliminando item.`); });
                         } else {
-                            console.warn("Respuesta inesperada al eliminar item:", response);
+                            mostrarFeedback("Acción completada con respuesta inesperada.", "warning");
                             this.fetchCarrito();
                         }
                     })
                     .catch(error => {
                         console.error("Error eliminando item:", error);
-                        alert(`Error al eliminar el producto del carrito: ${error.message}`);
+                        mostrarFeedback(`Error al eliminar el producto: ${error.message}`, "danger");
                     });
             },
-            procederAlPago() {
+            confirmarProcederAlPago() {
                 if (!this.carrito || !this.carrito.items || this.carrito.items.length === 0) {
-                    alert("Tu carrito esta vacio.");
+                    mostrarFeedback("Tu carrito esta vacio. Agrega productos antes de proceder.", "warning");
                     return;
                 }
 
-                //Verificando que el cliente seleccione un metodo de pago identificando si alguna opción ha sido seleccionada y, dependiendo de esta selección, se le asigna un mensaje diferente.
-                const metodoPago = document.querySelector('input[name="pago"]:checked');
-                if (!metodoPago) {
-                    alert("Por favor selecciona un método de pago.");
+                const metodoPagoSeleccionado = document.querySelector('input[name="metodoPago"]:checked');
+                if (!metodoPagoSeleccionado) {
+                    mostrarFeedback("Por favor selecciona un método de pago.", "warning");
                     return;
                 }
+                this.metodoPagoSeleccionado = metodoPagoSeleccionado.value; // Guardar el método de pago
 
-                let mensaje = "";
-                switch (metodoPago.value) {
+                mostrarConfirmacion(
+                    "¿Estas seguro de que quieres finalizar tu pedido?",
+                    () => {
+                        this.realizarPedido();
+                    }
+                );
+            },
+            realizarPedido() {
+                this.creandoPedido = true;
+
+                let mensajeMetodoPago = "";
+                switch (this.metodoPagoSeleccionado) {
                     case "efectivo":
-                        mensaje = "Por favor ten el dinero listo para entregárselo al repartidor.";
+                        mensajeMetodoPago = "Por favor ten el dinero listo para entregárselo al repartidor.";
                         break;
                     case "tarjeta":
-                        mensaje = "El repartidor llevará una terminal para procesar el pago.";
+                        mensajeMetodoPago = "El repartidor llevará una terminal para procesar el pago.";
                         break;
                     case "transferencia":
-                        mensaje = "Por favor realiza el depósito a la cuenta 638180010119946542 (nu bank/stp) con titular SazónFI Corporation.";
+                        mensajeMetodoPago = "Por favor realiza el depósito a la cuenta 638180010119946542 (nu bank/stp) con titular SazónFI Corporation.";
                         break;
                 }
 
-                // Guardando el mensaje
-                const mensajeFinal = mensaje;
-
-                if (!confirm("¿Estas seguro de que quieres finalizar tu pedido?")) {
-                    return;
-                }
-                this.creandoPedido = true;
                 fetch('/api/pedidos/crear/', {
                     method: 'POST',
                     headers: this.apiHeaders,
+                    // No se envía el método de pago al backend en esta implementación,
+                    // pero si fuera necesario, se añadiría al body aquí.
                 })
                     .then(response => {
                         if (!response.ok) {
-                            return response.json()
-                                .then(errData => {
-                                    const errorMessage = errData.detail || errData.error || JSON.stringify(errData);
-                                    throw new Error(errorMessage || `Error del servidor: ${response.status}`);
-                                })
-                                .catch(() => {
-                                    throw new Error(`Error del servidor: ${response.status}. Respuesta no es JSON.`);
-                                });
+                            return response.json().then(errorData => { throw new Error(errorData.error || errorData.detail || JSON.stringify(errorData)); })
+                                .catch(() => { throw new Error(`Error del servidor: ${response.status} - ${response.statusText || 'No se pudo procesar el pedido.'}`); });
                         }
                         return response.json();
                     })
                     .then(data => {
-                        console.log('Pedido creado:', data);
-                        alert(`¡Pedido realizado exitosamente! Tu carrito ha sido vaciado. \n\n${mensajeFinal}`);
+                        // Usar mostrarFeedback para el mensaje principal y luego un alert para las instrucciones de pago
+                        //mostrarFeedback('¡Pedido realizado exitosamente! Tu carrito ha sido vaciado.', "success", 4000);
+                        mostrarFeedback(`¡Pedido realizado exitosamente!\n${mensajeMetodoPago}`, "success", 4000);
+                        //alert(mensajeMetodoPago); // Este alert es el que tenías, se mantiene por ahora.
                         this.fetchCarrito();
                     })
                     .catch(error => {
                         console.error('Error al crear el pedido:', error);
-                        alert(`Error al realizar el pedido: ${error.message}`);
+                        mostrarFeedback(`Error al realizar el pedido: ${error.message}`, "danger", 7000);
                     })
                     .finally(() => {
                         this.creandoPedido = false;

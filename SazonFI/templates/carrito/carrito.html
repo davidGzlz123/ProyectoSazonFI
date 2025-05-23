@@ -30,7 +30,8 @@
                                 <input type="number"
                                        v-model.number="item.cantidad"
                                        @change="actualizarCantidad(item)"
-                                       min="1" class="form-control form-control-sm"
+                                       min="1"
+                                       class="form-control form-control-sm"
                                        style="width: 70px; display: inline-block;">
                             </td>
                             <td class="text-right"
@@ -44,7 +45,8 @@
                             : '$0.00' ">
                             </td>
                             <td class="text-center">
-                                <button @click="confirmarEliminarItem(item.id)" class="btn btn-danger btn-sm">
+                                <button @click="confirmarEliminarItem(item.id)"
+                                        class="btn btn-danger btn-sm">
                                     <img src="{{ MEDIA_URL }}principal/trash.png" alt="Eliminar producto" width="30" height="30">
                                 </button>
                             </td>
@@ -65,7 +67,30 @@
                             : '$0.00'
                         }}
                     </p>
-                    <div class="text-right mt-4">
+
+                    <form id="form-pago" class="my-3">
+                        <h5>Selecciona tu método de pago:</h5>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="metodoPago" id="pagoEfectivo" value="efectivo" checked>
+                            <label class="form-check-label" for="pagoEfectivo">
+                                Efectivo
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="metodoPago" id="pagoTarjeta" value="tarjeta">
+                            <label class="form-check-label" for="pagoTarjeta">
+                                Tarjeta de crédito o débito
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="metodoPago" id="pagoTransferencia" value="transferencia">
+                            <label class="form-check-label" for="pagoTransferencia">
+                                Transferencia bancaria
+                            </label>
+                        </div>
+                    </form>
+
+                    <div class="text-center mt-2">
                         <button @click="confirmarProcederAlPago" class="btn btn-primary btn-lg btn-block" :disabled="creandoPedido || !carrito || !carrito.items || carrito.items.length === 0">
                             <span v-if="creandoPedido" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                             <span v-if="creandoPedido">Procesando...</span>
@@ -94,7 +119,8 @@
             loading: true,
             error: null,
             token: localStorage.getItem('token'),
-            creandoPedido: false
+            creandoPedido: false,
+            metodoPagoSeleccionado: 'efectivo' // Para almacenar el método de pago
         },
         computed: {
             apiHeaders() {
@@ -102,8 +128,6 @@
                     'Authorization': `Token ${this.token}`,
                     'Content-Type': 'application/json'
                 };
-                // const csrftoken = getCookie('csrftoken'); // Si usas CSRF
-                // if (csrftoken) headers['X-CSRFToken'] = csrftoken;
                 return headers;
             }
         },
@@ -111,7 +135,7 @@
             if (!this.token) {
                 this.error = "Debes iniciar sesion para ver tu carrito.";
                 this.loading = false;
-                mostrarFeedback(this.error, "warning"); // Usar feedback global
+                mostrarFeedback(this.error, "warning");
                 return;
             }
             this.fetchCarrito();
@@ -135,7 +159,7 @@
                     .catch(error => {
                         this.error = error.message;
                         console.error('Error en fetchCarrito:', error);
-                        mostrarFeedback(`Error al cargar el carrito: ${error.message}`, "danger"); // Usar feedback global
+                        mostrarFeedback(`Error al cargar el carrito: ${error.message}`, "danger");
                     })
                     .finally(() => { this.loading = false; });
             },
@@ -144,18 +168,17 @@
                     mostrarFeedback("La cantidad debe ser un número.", "danger");
                     this.fetchCarrito(); return;
                 }
-                if (item.cantidad < 0) { // Cantidad 0 es manejada por la API para eliminar
+                if (item.cantidad < 0) {
                     mostrarFeedback("La cantidad no puede ser negativa.", "danger");
                     this.fetchCarrito(); return;
                 }
-
                 fetch(`/api/carrito-items/${item.id}/`, {
                     method: 'PATCH',
                     headers: this.apiHeaders,
                     body: JSON.stringify({ cantidad: item.cantidad })
                 })
                     .then(response => {
-                        if (response.status === 204 && item.cantidad === 0) return null; // Eliminado exitosamente
+                        if (response.status === 204 && item.cantidad === 0) return null;
                         if (!response.ok) {
                             return response.json().then(errData => { throw new Error(errData.detail || errData.error || errData.cantidad || JSON.stringify(errData) || `Error ${response.status}`); })
                                 .catch(() => { throw new Error(`Error ${response.status} actualizando cantidad.`); });
@@ -174,19 +197,17 @@
                     });
             },
             confirmarEliminarItem(itemId) {
-                mostrarConfirmacion( // Uso de la función de confirmación global
+                mostrarConfirmacion(
                     "¿Estas seguro de que quieres eliminar este producto del carrito?",
-                    () => { // Callback SI: se ejecuta si el usuario confirma
+                    () => {
                         this.procederEliminarItem(itemId);
                     }
-                    // No se pasa callbackNo, por lo que si cancela, no hace nada extra.
                 );
             },
             procederEliminarItem(itemId) {
-                // Lógica para eliminar el ítem después de la confirmación
                 fetch(`/api/carrito-items/${itemId}/`, {
                     method: 'DELETE',
-                    headers: this.apiHeaders // Solo el token si la API lo requiere para DELETE
+                    headers: this.apiHeaders
                 })
                     .then(response => {
                         if (response.status === 204) {
@@ -205,25 +226,47 @@
                         mostrarFeedback(`Error al eliminar el producto: ${error.message}`, "danger");
                     });
             },
-            confirmarProcederAlPago() { // Este método ahora solo muestra la confirmación
+            confirmarProcederAlPago() {
                 if (!this.carrito || !this.carrito.items || this.carrito.items.length === 0) {
                     mostrarFeedback("Tu carrito esta vacio. Agrega productos antes de proceder.", "warning");
                     return;
                 }
-                // Aquí se usa mostrarConfirmacion en lugar del if(!confirm(...))
+
+                const metodoPagoSeleccionado = document.querySelector('input[name="metodoPago"]:checked');
+                if (!metodoPagoSeleccionado) {
+                    mostrarFeedback("Por favor selecciona un método de pago.", "warning");
+                    return;
+                }
+                this.metodoPagoSeleccionado = metodoPagoSeleccionado.value; // Guardar el método de pago
+
                 mostrarConfirmacion(
                     "¿Estas seguro de que quieres finalizar tu pedido?",
-                    () => { // Callback SI: se ejecuta si el usuario confirma
-                        this.realizarPedido(); // Llama a la función que contiene la lógica del pedido
+                    () => {
+                        this.realizarPedido();
                     }
-                    // No se pasa callbackNo, por lo que si cancela, no hace nada extra.
                 );
             },
-            realizarPedido() { // Esta nueva función contiene la lógica que antes estaba después del confirm()
+            realizarPedido() {
                 this.creandoPedido = true;
+
+                let mensajeMetodoPago = "";
+                switch (this.metodoPagoSeleccionado) {
+                    case "efectivo":
+                        mensajeMetodoPago = "Por favor ten el dinero listo para entregárselo al repartidor.";
+                        break;
+                    case "tarjeta":
+                        mensajeMetodoPago = "El repartidor llevará una terminal para procesar el pago.";
+                        break;
+                    case "transferencia":
+                        mensajeMetodoPago = "Por favor realiza el depósito a la cuenta 638180010119946542 (nu bank/stp) con titular SazónFI Corporation.";
+                        break;
+                }
+
                 fetch('/api/pedidos/crear/', {
                     method: 'POST',
                     headers: this.apiHeaders,
+                    // No se envía el método de pago al backend en esta implementación,
+                    // pero si fuera necesario, se añadiría al body aquí.
                 })
                     .then(response => {
                         if (!response.ok) {
@@ -233,7 +276,10 @@
                         return response.json();
                     })
                     .then(data => {
-                        mostrarFeedback('¡Pedido realizado exitosamente! Tu carrito ha sido vaciado.', "success", 5000);
+                        // Usar mostrarFeedback para el mensaje principal y luego un alert para las instrucciones de pago
+                        //mostrarFeedback('¡Pedido realizado exitosamente! Tu carrito ha sido vaciado.', "success", 4000);
+                        mostrarFeedback(`¡Pedido realizado exitosamente!\n${mensajeMetodoPago}`, "success", 4000);
+                        //alert(mensajeMetodoPago); // Este alert es el que tenías, se mantiene por ahora.
                         this.fetchCarrito();
                     })
                     .catch(error => {

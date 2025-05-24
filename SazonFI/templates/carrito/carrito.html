@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 
 {% block content %}
 <div id="app-carrito" class="container mt-5">
@@ -91,7 +91,7 @@
                     </form>
 
                     <div class="text-center mt-2">
-                        <button @click="confirmarProcederAlPago" class="btn btn-primary btn-lg btn-block" :disabled="creandoPedido || !carrito || !carrito.items || carrito.items.length === 0">
+                        <button @click="confirmarProcederAlPago" class="btn btn-primary mt-auto btProduct d-block mx-auto" :disabled="creandoPedido || !carrito || !carrito.items || carrito.items.length === 0">
                             <span v-if="creandoPedido" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                             <span v-if="creandoPedido">Procesando...</span>
                             <span v-else>Hacer Pedido</span>

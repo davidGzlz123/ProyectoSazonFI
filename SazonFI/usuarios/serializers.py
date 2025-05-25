@@ -16,6 +16,16 @@ class UsuarioSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Usuario
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'rol']
+        # 'password' se excluye por seguridad; se manejar� de otra manera
+        read_only_fields = ['id'] # El ID es de solo lectura y se genera automaticamente.
+        extra_kwargs = {
+            'password': {'write_only': True}
+        }
+
+    def create(self, validated_data):
+        return Usuario.objects.create_user(**validated_data)
+
         # Incluimos 'password' en los fields para que el serializador lo reciba durante la creacion.
         # 'first_name' y 'last_name' son opcionales (blank=True en el modelo AbstractUser).
         fields = ['id', 'username', 'email', 'password', 'first_name', 'last_name', 'rol']
@@ -59,3 +69,4 @@ class UsuarioSerializer(serializers.ModelSerializer):
         
         instance.save()
         return instance
+

@@ -6,10 +6,13 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
+
+    path('accounts/', include('allauth.urls')), # URLs para autenticacion de allauth
+
     path('admin/', admin.site.urls),
 
     # --- INCLUSION DE LAS URLs DE TU API ---
-    path('api/', include('api.urls')), # ¡ESTA LINEA ES CRUCIAL!
+    path('api/', include('api.urls')), # ï¿½ESTA LINEA ES CRUCIAL!
 
     # URLs para Paginas HTML de la Aplicacion 'negocios'
     path('negocios/', include('negocios.urls')), 

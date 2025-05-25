@@ -1,3 +1,4 @@
+
 Versión de Python empleada: 3.13.3
 Verificación de la versión instalada [En terminal]: 
 > python --version

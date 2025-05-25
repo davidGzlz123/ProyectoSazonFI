@@ -2,28 +2,61 @@
 
 {% block content %}
 <div id="app-negocio" class="container mt-4">
-    <h1>Panel de Administracion de Negocios para {% if user.is_authenticated and user.rol == 'negocio' %}<span class="sazonfi-highlight">{{ user.username }}{% endif %}</span></h1>
-    <hr>
+    <h1>
+        Panel de Administracion de Negocios para
+        {% if user.is_authenticated and user.rol == 'negocio' %}
+        <span class="sazonfi-highlight">{{ user.username }}</span>
+        {% endif %}
+    </h1>
+
+
 
     <ul class="nav nav-tabs mb-3" id="panelNegocioTabs" role="tablist">
         <li class="nav-item" role="presentation">
-            <a class="nav-link" :class="{ active: activeTab === 'lista' }" @click.prevent="selectTab('lista')" href="#lista" role="tab" aria-controls="lista" aria-selected="true">Mis Negocios y Productos</a>
+            <a class="nav-link"
+               :class="{ active: activeTab === 'lista' }"
+               :style="{ color: activeTab === 'lista' ? 'black' : 'gray' }"
+               @click.prevent="selectTab('lista'); modoFormularioNegocio = 'crear'"
+               href="#lista"
+               role="tab"
+               aria-controls="lista"
+               :aria-selected="activeTab === 'lista'">
+                Mis Negocios y Productos
+            </a>
+
+
         </li>
+        <a class="nav-link"
+           :class="{ active: activeTab === 'formularioNegocio' }"
+           :style="{ color: activeTab === 'formularioNegocio' ? 'black' : 'gray' }"
+           @click.prevent="selectTab('formularioNegocio')"
+           href="#formularioNegocio"
+           role="tab"
+           aria-controls="formularioNegocio"
+           :aria-selected="activeTab === 'formularioNegocio'">
+            <span v-if="modoFormularioNegocio === 'crear'">Crear Negocio</span>
+            <span v-else>Editar Negocio</span>
+        </a>
+
         <li class="nav-item" role="presentation">
-            <a class="nav-link" :class="{ active: activeTab === 'formularioNegocio' }" @click.prevent="selectTab('formularioNegocio')" href="#formularioNegocio" role="tab" aria-controls="formularioNegocio" aria-selected="false">
-                <span v-if="modoFormularioNegocio === 'crear'">Crear Negocio</span>
-                <span v-else>Editar Negocio</span>
+            <a class="nav-link"
+               :class="{ active: activeTab === 'pedidos' }"
+               :style="{ color: activeTab === 'pedidos' ? 'coral' : 'gray' }"
+               @click.prevent="selectTab('pedidos')"
+               href="#pedidos"
+               role="tab"
+               aria-controls="pedidos"
+               :aria-selected="activeTab === 'pedidos'">
+                Gestionar Pedidos
             </a>
         </li>
-        <li class="nav-item" role="presentation">
-            <a class="nav-link" :class="{ active: activeTab === 'pedidos' }" @click.prevent="selectTab('pedidos')" href="#pedidos" role="tab" aria-controls="pedidos" aria-selected="false">Gestionar Pedidos</a>
-        </li>
+
     </ul>
 
     <div class="tab-content" id="panelNegocioTabsContent">
         <div class="tab-pane fade" :class="{ 'show active': activeTab === 'lista' }" id="lista" role="tabpanel" aria-labelledby="lista-tab">
             <h2>Mis Negocios</h2>
-            <button class="btn btn-success mb-3" @click="irACrearNegocio">
+            <button class="btn btProduct mb-3" @click="irACrearNegocio">
                 <i class="fas fa-plus"></i> Crear Nuevo Negocio
             </button>
             <div v-if="loadingNegocios" class="alert alert-info">Cargando negocios...</div>
@@ -122,7 +155,7 @@
                                 <img :src="negocioEnEdicion.logo_url" alt="Logo actual" style="max-height: 100px; border: 1px solid #ddd;">
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btProduct">
                             <span v-if="modoFormularioNegocio === 'crear'">Crear Negocio</span>
                             <span v-else>Guardar Cambios</span>
                         </button>

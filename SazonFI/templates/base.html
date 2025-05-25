@@ -48,81 +48,66 @@
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light navbar-custom">
-    <div class="container-fluid">
-        <a class="navbar-brand"
-           href="{% if user.is_authenticated and user.rol == 'negocio' %}{% url 'pagina_negocio' %}
-                  {% elif user.is_authenticated and user.rol == 'cliente' %}{% url 'lista_negocios_cliente' %}
-                  {% else %}{% url 'index' %}{% endif %}">
-            <img src="{{ MEDIA_URL }}principal/logo.png" alt="Logo-SazonFI" width="220" height="150" class="d-inline-block align-top" />
-        </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav w-100 align-items-center">
-
-                <!-- Barra de búsqueda -->
-                <li class="nav-item d-flex justify-content-center w-100" id="search-bar">
-                    <form @submit.prevent="buscarNegocios" class="search-bar d-flex align-items-center" style="max-width: 600px; width: 100%;">
-                        <img src="{{ MEDIA_URL }}principal/search.png" alt="search-icon" class="search-icon mr-2" style="width:24px; height:24px;" />
-                        <input v-model="searchQuery"
-                               type="search"
-                               class="search-input form-control"
-                               placeholder="Buscar comida ..."
-                               aria-label="Buscar comida"
-                               autocomplete="off" />
-                    </form>
-                </li>
-
-                <!-- Login / Logout según autenticación -->
-                {% if user.is_authenticated %}
-                    <li class="nav-item">
-                        <span class="nav-link" style="color: #D9D9D9; font-size: 20px;">
-                            Bienvenido, {{ user.username|default:user.email }}
-                        </span>
+        <div class="container-fluid">
+            <a class="navbar-brand"
+               href="{% if user.is_authenticated and user.rol == 'negocio' %}{% url 'pagina_negocio' %}{% elif user.is_authenticated and user.rol == 'cliente' %}{% url 'lista_negocios_cliente' %}{% else %}{% url 'index' %}{% endif %}">
+                <img src="{{ MEDIA_URL }}principal/logo.png" alt="Logo-SazonFI" width="220" height="150" class="d-inline-block align-top" />
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav w-100 align-items-center">
+                    <li class="nav-item d-flex justify-content-center w-100" id="search-bar">
+                        <form @submit.prevent="buscarNegocios" class="search-bar d-flex align-items-center" style="max-width: 600px; width: 100%;">
+                            <img src="{{ MEDIA_URL }}principal/search.png" alt="search-icon" class="search-icon mr-2" style="width:24px; height:24px;" />
+                            <input v-model="searchQuery"
+                                   type="search"
+                                   class="search-input form-control"
+                                   placeholder="Buscar comida ..."
+                                   aria-label="Buscar comida"
+                                   autocomplete="off" />
+                        </form>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'account_logout' %}" style="text-decoration: none; color: #D9D9D9; font-size: 20px;">
-                            <img src="{{ MEDIA_URL }}principal/login.png" alt="Icono de Salida" width="40" height="40" />
-                            Cerrar Sesión
-                        </a>
-                    </li>
-                {% else %}
+
                     <li class="nav-item" id="login-link">
                         <div class="d-flex align-items-center">
                             <img src="{{ MEDIA_URL }}principal/login.png" alt="Icono de Ingreso" width="45" height="45" class="mr-2" />
-                            <a href="{% url 'login' %}" class="nav-link login-btn" style="color: #D9D9D9; font-size: 25px;">Ingresa</a>
+                            <a href="{% url 'login' %}" class="nav-link login-btn {% if request.resolver_match.url_name == 'registro' %}active{% endif %}" style="color: #D9D9D9; font-size: 25px;">Ingresa</a>
                             <span class="mx-1" style="color: #D9D9D9; font-size: 25px;">o</span>
-                            <a href="{% url 'registro' %}" class="nav-link login-btn" style="color: #D9D9D9; font-size: 25px;">Regístrate</a>
+                            <a href="{% url 'registro' %}" class="nav-link login-btn {% if request.resolver_match.url_name == 'registro' %}active{% endif %}" style="color: #D9D9D9; font-size: 25px;">Regístrate</a>
                         </div>
                     </li>
-                {% endif %}
 
-                <!-- Otros íconos fijos -->
-                <li class="nav-item" id="carrito-link" style="display: none;">
-                    <a class="nav-link" href="{% url 'carritos:ver_carrito' %}">
-                        <img src="{{ MEDIA_URL }}principal/carrito.png" alt="Enlace a Carrito" width="50" height="50" />
-                    </a>
-                </li>
+                    <li class="nav-item" id="carrito-link" style="display: none;">
+                        <a class="nav-link" href="{% url 'carritos:ver_carrito' %}">
+                            <img src="{{ MEDIA_URL }}principal/carrito.png" alt="Enlace a Carrito" width="50" height="50" />
+                        </a>
+                    </li>
 
-                <li class="nav-item" id="mis-pedidos-link" style="display: none;">
-                    <a class="nav-link" href="{% url 'carritos:mis_pedidos_pagina' %}">
-                        <img src="{{ MEDIA_URL }}principal/pedidos.png" alt="Icono de Pedidos" width="40" height="40" />
-                    </a>
-                </li>
+                    <li class="nav-item" id="mis-pedidos-link" style="display: none;">
+                        <a class="nav-link" href="{% url 'carritos:mis_pedidos_pagina' %}">
+                            <img src="{{ MEDIA_URL }}principal/pedidos.png" alt="Icono de Pedidos" width="40" height="40" />
+                        </a>
+                    </li>
 
-                <li class="nav-item" id="panel-negocio-link" style="display: none;">
-                    <a class="nav-link" href="{% url 'pagina_negocio' %}">
-                        <img src="{{ MEDIA_URL }}principal/panel.png" alt="Icono de Panel" width="40" height="40" />
-                    </a>
-                </li>
+                    <li class="nav-item" id="panel-negocio-link" style="display: none;">
+                        <a class="nav-link" href="{% url 'pagina_negocio' %}">
+                            <img src="{{ MEDIA_URL }}principal/panel.png" alt="Icono de Panel" width="40" height="40" />
+                        </a>
+                    </li>
 
-            </ul>
+                    <li class="nav-item" id="logout-link" style="display: none;">
+                        <a class="nav-link" href="#" onclick="logout(event)" style="text-decoration: none;">
+                            <img src="{{ MEDIA_URL }}principal/login.png" alt="Icono de Salida" width="40" height="40" />
+                            <span class="logout-text">Cerrar Sesión</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>
 
     <div id="global-feedback-container">
         <div id="global-feedback-message" class="alert" role="alert" style="display: none; margin-bottom: 0;">

@@ -27,7 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-SITE_ID = 0
+SITE_ID = 1
 
 # Application definition
 
@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
-    'django.contrib.sites', # Necesario para allauth
     'usuarios',
     'negocios',
     'productos',

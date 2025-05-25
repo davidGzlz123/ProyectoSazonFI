@@ -12,6 +12,7 @@
     --colorInfo: #17a2b8;
 }
 
+
 body {
     background-color: var(--fondo);
     display: flex;
@@ -50,7 +51,7 @@ body {
 }
 
 .form-control {
-    background-color: #E2715B30;
+    background-color: #E4E4E4;
     border: none;
     border-radius: 20px;
 }
@@ -316,7 +317,7 @@ body {
 
 /*VISTA PARA EL PANEL DE NEGOCIOS*/
 #app-negocio h1, #app-negocio h2, #app-negocio h3 {
-    color: var(--fondoNavFot);
+    color: black;
     font-weight: bold;
 }
 #app-negocio h1 { text-align: center; margin-bottom: 1.5rem; }
@@ -366,7 +367,7 @@ body {
     padding: 1rem 1.25rem; 
 }
 #app-negocio .card-header h3 { 
-    color: var(--fondoNavFot);
+    color: black;
     margin-bottom: 0; 
     font-size: 1.2rem;
 }
@@ -453,3 +454,21 @@ body {
     font-weight: 500; 
 }
 
+
+/* Estilo para navbar y footer */
+.navbar-custom {
+    background-color: var(--fondoNavFot) !important;
+}
+
+footer {
+    background-color: var(--fondoNavFot);
+    color: var(--textoClaro);
+}
+
+    footer a {
+        color: var(--textoClaro);
+    }
+
+        footer a:hover {
+            color: white;
+        }

@@ -1,4 +1,5 @@
 ﻿{% extends 'base.html' %}
+{% load socialaccount %}
 
 {% block content %}
 <h1 style="text-align: center;">Llena los siguientes datos <br>para dar tu primera mordida:</h1>
@@ -27,6 +28,30 @@
                         <button type="submit" class="btn btn-primary  btLogin">
                             ¡Comenzar a morder!
                         </button>
+                         <br>
+                         <!-- Implementación del botón de Login con Google, es el que nos lleva 
+                          directamente con la elección de las cuentas en caso de que estén activas-->
+                         <div style="display: flex; justify-content: center; align-items: center; margin-top: 15px;">
+                            <a href="{% provider_login_url 'google' %}" style="
+                                display: flex;
+                                align-items: center;
+                                background-color: white;
+                                color: #3c4043;
+                                border: 1px solid #dadce0;
+                                padding: 10px 16px;
+                                border-radius: 6px;
+                                font-size: 14px;
+                                font-family: 'Roboto', sans-serif;
+                                cursor: pointer;
+                                box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+                                text-decoration: none;
+                            ">
+                                <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo"
+                                    style="width: 18px; height: 18px; margin-right: 8px;">
+                                Iniciar sesión con Google
+                            </a>
+                    </div>
+                        
                     </div>
                 </form>
                 <p class="text-center mt-3">

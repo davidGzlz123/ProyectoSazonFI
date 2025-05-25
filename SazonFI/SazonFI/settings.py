@@ -27,6 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+SITE_ID = 0
 
 # Application definition
 
@@ -39,12 +40,18 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
+    'django.contrib.sites', # Necesario para allauth
     'usuarios',
     'negocios',
     'productos',
     'pedidos', # Asumo que esta app existe o la crearas para los modelos de Pedido
     'api',
-    'carritos', 
+    'carritos',
+    'SazonFI', # Asumo que esta es tu app principal 
+    'allauth', # Google Auth
+    'allauth.account', # Google Auth
+    'allauth.socialaccount', # Google Auth
+    'allauth.socialaccount.providers.google', # Google Auth 
 ]
 
 MIDDLEWARE = [
@@ -55,6 +62,13 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware', # Esta linea es crucial
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware', # Middleware de allauth
+
+]
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend', # Para autenticacion normal
+    'allauth.account.auth_backends.AuthenticationBackend', # Para autenticacion con allauth
 ]
 
 ROOT_URLCONF = 'SazonFI.urls'
@@ -175,3 +189,12 @@ LOGIN_REDIRECT_URL = '/'
 
 # --- URL DE REDIRECCION DESPUES DEL LOGOUT ---
 LOGOUT_REDIRECT_URL = '/' # A donde ir despues de cerrar sesion
+SOCIALACCOUNT_LOGIN_ON_GET = True
+ACCOUNT_LOGOUT_REDIRECT_URL = '/'  
+ACCOUNT_LOGOUT_ON_GET = True
+# Parámetros para inicio de sesión, en este caso usando nombre de usuario
+# y contraseña.
+ACCOUNT_AUTHENTICATION_METHOD = "username"
+ACCOUNT_EMAIL_REQUIRED = False
+ACCOUNT_USERNAME_REQUIRED = True
+

@@ -1,277 +1,455 @@
-﻿/* Colores usados en toda la página */
+﻿/* Colores usados en toda la pagina */
 :root {
     --fondoNavFot: #E2715B;
     --fondo: #F7F7F7;
+    --textoClaro: #FFF8E0;
+    --textoOscuro: #333333;
+    --colorPrimario: #E2715B;
+    --colorBordeSuave: #DDDDDD;
+    --colorExito: #28a745;
+    --colorAdvertencia: #ffc107;
+    --colorPeligro: #dc3545;
+    --colorInfo: #17a2b8;
 }
 
-body{
+body {
     background-color: var(--fondo);
-}
-
-/* ------------------- NAVBAR ---------------- */
-.navbar-custom {
-    background-color: var(--fondoNavFot);
-    width: 100%;
-    margin: 0;
-    padding: 0 30px 10px 30px;
-    box-sizing: border-box;
-}
-
-.search-bar {
     display: flex;
-    align-items: center;
-    background-color: #D9D9D9;
-    padding: 0 12px;     
-    height: 40px;        
-    border-radius: 20px; 
-    box-sizing: border-box;
-    width: 500px;
-    margin: 0; 
-} 
-
-/* Lupa dentro de la barra */
-.search-icon {
-    flex-shrink: 0;      
-    width: 24px;         
-    height: 24px;
-    margin-right: 8px;   
+    flex-direction: column;
+    min-height: 100vh;
 }
 
-/* Input sin bordes */
-.search-input {
-    flex: 1; 
-    border: none;
-    outline: none;
-    background: transparent;
-    font-size: 1.2rem;
-    color: #555;
+.container.mt-4 {
+    flex-grow: 1;
 }
 
-.search-input::placeholder {
-    color: #00000021;
-}
+/* ... (tus estilos existentes de navbar, footer, login, .card-body, etc.) ... */
+/* Asegúrate de que los estilos generales que ya funcionan bien se mantengan aquí */
 
-/* Título personalizado de SazonFI */
 .sazonfi-highlight {
-    color: #E2715B; 
+    color: var(--fondoNavFot);
     font-weight: bold;
 }
 
-/* Marca Registrada */
 .brand-m {
     color: #5A5A5A;
     font-size: 35px;
 }
-/* ------------------- FOOTER ---------------- */
-footer {
-    background-color: var(--fondoNavFot);
-}
 
-/* ---------------- LOGIN --------------- */
-.loginInfo{
-    padding: 20px;
-}
-
-.card-body {
-    background-color: white;
-    background-color: white;
-    border-radius: 20px;
-    padding: 15px 20px 15px 20px;
-}
-.btLogin{
+.btLogin {
     background-color: #E2715B70;
     border-radius: 20px;
-    color: #E2715B;
+    color: var(--fondoNavFot);
     border: none;
     margin: 10px 0px 10px 0px;
     width: 150px;
 }
-
-.btLogin:hover{
+.btLogin:hover {
     background-color: var(--fondoNavFot);
+    color: white;
 }
 
-.btLogin:focus,
-.btLogin:active {
-  background-color: #E2715B70 !important;
-  box-shadow: none !important;
-}
-
-.form-control{
+.form-control {
     background-color: #E2715B30;
     border: none;
     border-radius: 20px;
 }
-
 .form-control:focus {
-  background-color: #E2715B30;        /* blanco */
-  box-shadow: 0 0 0 0.2rem #E2715B60; /* glow azul */
+    background-color: #E2715B30;
+    box-shadow: 0 0 0 0.2rem #E2715B60;
 }
 
-/* ------------HOME VIEW------------------- */
 .custom-btn {
     background-color: #E2715B70;
     border-radius: 10px;
     border: none;
-    padding: 5px 20px 5px 25px;
+    padding: 5px 20px;
     color: #804d57;
 }
-
-.custom-btn:hover{
+.custom-btn:hover {
     background-color: var(--fondoNavFot);
     color: white;
 }
-
-button.custom-btn:focus,
-button.custom-btn:active {
-    color: white;
-    background-color: var(--fondoNavFot);
-}
-
 
 .div-local {
     background-color: #FFFFFF;
     border-radius: 10px;
-    color: black;
+    color: var(--textoOscuro, black);
     border: none;
-    padding: 8px 15px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     transition: box-shadow 0.3s ease-in-out, transform 0.2s ease;
+}
+.div-local:hover {
+    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    transform: translateY(-2px);
 }
 
 .cardIMG {
     height: 180px;
-    object-fit: contain; 
-    border: 1px solid #D9D9D931;
-    background-color: #f8f9fa; 
-    border-radius: 20px 20px 0px 0px;
+    object-fit: contain;
+    background-color: #f8f9fa;
+    border-radius: 10px 10px 0 0;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
 }
 
-
-.localInfo{
-    background-color: #e2725bbe; 
-    border-radius: 0px 0px 20px 20px;
-    padding-bottom: 20px;
+.localInfo {
+    background-color: #e2725bbe;
+    border-radius: 0px 0px 10px 10px;
+    padding: 15px 20px;
+    color: var(--textoClaro, white);
 }
-
-/* Contenedor scrollable sin barra visible */
-.desc-scroll {
-    overflow-y: auto;           
-    -ms-overflow-style: none;   /* IE y Edge */
-    scrollbar-width: none;      /* Firefox */
+.localInfo .card-title {
+    color: var(--textoClaro, white);
 }
-
-.desc-scroll::-webkit-scrollbar {
-  width: 0px !important;
-  height: 0px !important;
-  background: transparent;
+.localInfo .card-text {
+    color: var(--textoClaro, #f0f0f0);
+    text-align: justify;
 }
 
 .card-text {
     text-align: justify;
+    color: var(--textoOscuro, #333);
+    font-size: 0.9rem;
 }
 
-
-.btProduct {
+/* Estilo base para .btProduct (si lo sigues usando en otros lugares) */
+.btProduct { 
     background-color: #FFFFFF;
     border-radius: 10px;
-    color: coral;
+    color: var(--fondoNavFot, coral);
     font-weight: bold;
     font-size: 14px;
-    border: none;
-    width: 150px;
+    border: 1px solid var(--fondoNavFot, coral); 
+    width: auto; 
     padding: 8px 15px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    transition: box-shadow 0.3s ease-in-out, transform 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+    transition: all 0.2s ease-in-out; 
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
-
+.btProduct i.fas {
+    margin-right: 0.4rem;
+}
 .btProduct:hover{
     background-color: var(--fondoNavFot);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     transform: translateY(-1px);
-
 }
 
-.btProduct:focus,
-.btProduct:active {
-  background-color: #E2715B70 !important;
-  box-shadow: none !important;
-}
-
-/* -------------------CARRITO--------------------- */
-/* ----- Bloque Total ----*/
-.totalDiv{
-    background-color: #D9D9D980;
-    border-radius: 1rem;
-    overflow: hidden;
-    /* padding-bottom: 1rem; */
-}
-
-.total-header{
-    background-color: #E2715B90;
-    border-radius: 20px 20px 0px 0px;
-    padding: 20px 70px 20px 70px;
-    /* font-size: 25px; */
-}
-
-.divtext-bt{
-    padding: 20px;
-}
-
-.btn-pedido{
-    background-color: #E2715B70;
+/* Nueva clase para el botón "Crear Nuevo Negocio" */
+.btn-crear-negocio-sazonfi {
+    /* Hereda/copia estilos visuales de .btProduct */
+    background-color: #FFFFFF;
     border-radius: 10px;
-    border: none;
-    padding: 10px 20px;
-    color: rgba(0, 0, 0, 0.517);
-    width: 150px;
+    color: var(--fondoNavFot, coral);
+    font-weight: bold;
+    font-size: 1rem; /* Ligeramente más grande para mejor legibilidad */
+    border: 1px solid var(--fondoNavFot, coral);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease-in-out;
+
+    /* Ajustes específicos para este botón */
+    width: 300px; /* Ancho deseado */
+    min-height: 45px; /* Para una buena altura de botón */
+    padding: 0.5rem 1rem; /* Padding ajustado al nuevo tamaño */
+    
+    white-space: nowrap;     /* Para que el texto no se divida en líneas */
+    overflow: hidden;        /* Opcional: Corta el texto si excede */
+    text-overflow: ellipsis; /* Opcional: Muestra "..." si se corta */
+
+    /* Para alinear ícono y texto */
+    display: inline-flex; /* Para que se comporte como botón pero permita alineación interna flex */
+    align-items: center;    
+    justify-content: center;
+    text-align: center; 
 }
 
-.btn-pedido:hover{
+.btn-crear-negocio-sazonfi i.fas {
+    margin-right: 0.5rem; /* Espacio entre el ícono y el texto */
+}
+
+.btn-crear-negocio-sazonfi:hover {
     background-color: var(--fondoNavFot);
     color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
 }
 
-.btn-pedido:focus,
-.btn-pedido:active {
-    background-color: var(--fondoNavFot) !important;
-    box-shadow: none !important;
+.btn-crear-negocio-sazonfi:focus,
+.btn-crear-negocio-sazonfi:active {
+    background-color: var(--fondoNavFot); 
+    color: white; 
+    opacity: 0.9;
+    outline: none; 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
 }
 
-/* ------------------- PRODUCTOS ---------------- */
-.infoTable {
-    border-collapse: separate;     
-    border-spacing: 0;             
-    border-radius: 20px;           
-    overflow: hidden;             
-}
 
-.infoTable thead th {
-    background-color: #E2715B90;  
-    color: #000;
-    padding: 10px;                
-    border: none;    
+/* ... (resto de tus estilos para .totalDiv, .btn-pedido, .infoTable, #app-mis-pedidos, #app-negocio, etc.) ... */
+/* Asegúrate de que los estilos para #app-mis-pedidos y #app-negocio estén aquí si los necesitas */
+/* ... (Copiar el resto de los estilos de #app-mis-pedidos y #app-negocio del Canvas anterior si es necesario) ... */
+
+/*Página de mis pedidos por parte del cliente*/
+/* ================= MIS PEDIDOS ================== */
+#app-mis-pedidos h1,
+#app-mis-pedidos h2 {
+    color: var(--fondoNavFot);
+    font-weight: bold;
     text-align: center;
-    vertical-align: middle;              
+    margin-bottom: 1.5rem; 
+}
+#app-mis-pedidos h1 { font-size: 1.75rem; } 
+#app-mis-pedidos h3 { 
+    font-size: 1.1rem;
+    color: var(--textoOscuro);
+    margin-bottom: 0.5rem;
+}
+#app-mis-pedidos hr {
+    border-top: 2px solid var(--fondoNavFot);
+    width: 60px; 
+    margin: 0 auto 1.5rem auto;
+}
+#app-mis-pedidos .nav-tabs {
+    border-bottom: 1px solid var(--colorBordeSuave, #ddd); 
+    margin-bottom: 1.5rem;
+}
+#app-mis-pedidos .nav-tabs .nav-item {
+    margin-bottom: -1px; 
+}
+#app-mis-pedidos .nav-tabs .nav-link {
+    border: 1px solid transparent;
+    border-top-left-radius: .5rem; 
+    border-top-right-radius: .5rem;
+    margin: 0 2px; 
+    color: var(--fondoNavFot);
+    font-weight: bold;
+    background-color: transparent; 
+    padding: 0.75rem 1.25rem; 
+}
+#app-mis-pedidos .nav-tabs .nav-link:hover {
+    border-color: #e9ecef #e9ecef #dee2e6; 
+    background-color: #e9ecef; 
+    color: var(--fondoNavFot);
+}
+#app-mis-pedidos .nav-tabs .nav-link.active {
+    color: var(--textoOscuro, #495057);
+    background-color: var(--fondo, #F7F7F7); 
+    border-color: #dee2e6 #dee2e6 var(--fondo, #F7F7F7); 
+    border-bottom-color: var(--fondoNavFot); 
+    border-bottom-width: 3px;
+}
+#app-mis-pedidos .card {
+    border-radius: 15px; 
+    overflow: hidden;
+    border: 1px solid var(--colorBordeSuave, #ddd); 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    background-color: white; 
+    margin-bottom: 1.5rem;
+}
+#app-mis-pedidos .card-header {
+    background-color: #f8f9fa; 
+    color: var(--textoOscuro, #333);
+    border-bottom: 1px solid var(--colorBordeSuave, #ddd);
+    font-weight: bold;
+    padding: 0.75rem 1.25rem;
+}
+#app-mis-pedidos .card-header strong {
+    color: var(--fondoNavFot); 
+}
+#app-mis-pedidos .card-title { 
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--textoOscuro);
+    margin-bottom: 1rem;
+}
+#app-mis-pedidos .list-group-item {
+    background-color: transparent; 
+    border: none;
+    border-bottom: 1px solid #f0f0f0; 
+    padding: 1rem 0; 
+}
+#app-mis-pedidos .list-group-item:last-child {
+    border-bottom: none;
+}
+#app-mis-pedidos .list-group-item img {
+    width: 60px !important; 
+    height: 60px !important;
+    object-fit: cover; 
+    border-radius: 8px; 
+    margin-right: 15px !important; 
+    border: 1px solid #eee; 
+}
+#app-mis-pedidos .list-group-item strong { 
+    color: var(--textoOscuro);
+}
+#app-mis-pedidos .list-group-item small.text-muted { 
+    font-size: 0.8rem;
+}
+#app-mis-pedidos .list-group-item span:last-child { 
+    font-weight: bold;
+    color: #555;
+    font-size: 0.9rem;
+}
+.estado-pedido-badge { 
+    padding: 0.3em 0.65em;
+    font-size: 0.8rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.35rem;
+    text-transform: uppercase;
+}
+.estado-pedido-badge.text-success { background-color: var(--colorExito); color: white; }
+.estado-pedido-badge.text-danger { background-color: var(--colorPeligro); color: white; }
+.estado-pedido-badge.text-warning { background-color: var(--colorAdvertencia); color: var(--textoOscuro); } 
+.estado-pedido-badge.text-info { background-color: var(--colorInfo); color: white; }
+.estado-pedido-badge.text-secondary { background-color: #6c757d; color: white; } 
+
+
+/*VISTA PARA EL PANEL DE NEGOCIOS*/
+#app-negocio h1, #app-negocio h2, #app-negocio h3 {
+    color: var(--fondoNavFot);
+    font-weight: bold;
+}
+#app-negocio h1 { text-align: center; margin-bottom: 1.5rem; }
+#app-negocio h3 { font-size: 1.3rem; margin-bottom: 1rem; }
+#app-negocio .nav-tabs { 
+    border-bottom: 1px solid var(--colorBordeSuave, #ddd);
+    margin-bottom: 1.5rem;
+}
+#app-negocio .nav-tabs .nav-item {
+    margin-bottom: -1px;
+}
+#app-negocio .nav-tabs .nav-link {
+    border: 1px solid transparent;
+    border-top-left-radius: .5rem;
+    border-top-right-radius: .5rem;
+    margin: 0 2px;
+    color: var(--fondoNavFot);
+    font-weight: bold;
+    background-color: transparent;
+    padding: 0.75rem 1.25rem;
+    transition: all 0.3s ease;
+}
+#app-negocio .nav-tabs .nav-link:hover {
+    border-color: #e9ecef #e9ecef #dee2e6;
+    background-color: #e9ecef;
+    color: var(--fondoNavFot);
+}
+#app-negocio .nav-tabs .nav-link.active {
+    color: var(--textoOscuro, #495057);
+    background-color: var(--fondo, #F7F7F7);
+    border-color: #dee2e6 #dee2e6 var(--fondo, #F7F7F7);
+    border-bottom-color: var(--fondoNavFot);
+    border-bottom-width: 3px;
+}
+#app-negocio .card { 
+    border-radius: 15px;
+    border: 1px solid var(--colorBordeSuave, #ddd);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    background-color: white; 
+    margin-bottom: 1.5rem;
+}
+#app-negocio .card-header {
+    background-color: #f8f9fa; 
+    color: var(--textoOscuro, #333);
+    border-bottom: 1px solid var(--colorBordeSuave, #ddd);
+    font-weight: bold;
+    padding: 1rem 1.25rem; 
+}
+#app-negocio .card-header h3 { 
+    color: var(--fondoNavFot);
+    margin-bottom: 0; 
+    font-size: 1.2rem;
+}
+#app-negocio .form-group label { 
+    font-weight: bold;
+    color: var(--textoOscuro, #555);
+    margin-bottom: .3rem;
+}
+#app-negocio .form-control, #app-negocio select.form-control { 
+    background-color: white; 
+    border: 1px solid #ced4da; 
+    border-radius: .35rem; 
+    padding: .5rem .75rem; 
+}
+#app-negocio .form-control:focus, #app-negocio select.form-control:focus {
+    border-color: var(--fondoNavFot);
+    box-shadow: 0 0 0 0.2rem #E2715B60;
+    background-color: white;
+}
+#app-negocio .form-control-file { 
+    border: 1px solid #ced4da;
+    padding: .375rem .75rem;
+    border-radius: .25rem;
+}
+#app-negocio .table img { 
+    width: 50px; 
+    height: 50px;
+    object-fit: cover;
+    border-radius: .25rem; 
+    border: 1px solid #ddd;
+    background-color: #f8f9fa; 
+}
+#app-negocio .btn-primary { 
+    background-color: var(--fondoNavFot);
+    border-color: var(--fondoNavFot);
+    color: white;
+}
+#app-negocio .btn-primary:hover {
+    background-color: #D15B47;
+    border-color: #C04A39;
+}
+#app-negocio .btn-success {
+    background-color: var(--colorExito);
+    border-color: var(--colorExito);
+}
+#app-negocio .btn-success:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+#app-negocio .btn-danger {
+    background-color: var(--colorPeligro);
+    border-color: var(--colorPeligro);
+}
+#app-negocio .btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+#app-negocio .btn-secondary { 
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color: white;
+}
+#app-negocio .btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}
+#app-negocio .card-footer .form-inline label {
+    margin-right: .5rem;
+    font-size: 0.9rem;
+}
+#app-negocio .card-footer .form-control-sm {
+    font-size: 0.8rem;
+    padding: .25rem .5rem;
+    border-radius: .2rem;
 }
 
-.infoTable thead th:first-child {
-    border-top-left-radius: 10px;
-}
-.infoTable thead th:last-child {
-    border-top-right-radius: 10px;
-}
-
-.infoTable tbody td {
-    background-color: #D9D9D980;   
-    border: none;                
+/* Clase para el botón Crear Nuevo Negocio/Producto en panel de negocio */
+/* Se mantiene por si se usa en el botón "Agregar Nuevo Producto" */
+.btn-accion-principal {
+    min-width: 280px; 
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+    font-size: 1rem;  
+    font-weight: 500; 
 }
 
-.infoTable th,
-.infoTable td {
-    padding: 20px !important;
-}

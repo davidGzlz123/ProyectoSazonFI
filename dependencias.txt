@@ -1,3 +1,4 @@
+
 Versión de Python empleada: 3.13.3
 Verificación de la versión instalada [En terminal]: 
 > python --version
@@ -9,8 +10,6 @@ Verificación de la versión instalada [En terminal]:
 > pip install djangorestframework
 > pip install djangorestframework.authtoken  
 > pip install rest_framework_nested
-> pip install python-decouple
-
 
 
 * Comandos de Django (manage.py)

@@ -9,3 +9,47 @@ david
 Negocio:
 davidNegocio
 david
+
+// Nuevos usuarios para negocios 
+
+Negocio "Ranitas Gorditas"
+usuario: RanitasGorditas
+contraseña: gordit4sR4n1t4FI01
+
+Negocio "Tacos de Guisado"
+usuario:TacosdeGuisado
+contraseña: Gu1s4d0T4c0s
+
+Negocio "La banana feliz"
+usuario: bananaFeliz
+contraseña: fel1zB4n4n4
+
+Negocio "Tacos el champion"
+usuario: tacosChamps
+contraseña: 
+
+Negocio e¿de café
+usuario: cafeDelaFI
+contraseña:pasill0C4f3
+
+Negocio Finca Santa VeraCruz (anexo)
+usuario:cafeVeracruzano
+contraseña: sant4V3r4Cruz
+
+Negocio cafeteria 1 del anexo
+usuario:comidaFast
+contraseña: anex0C0m1d4
+
+// Negocios de alumnos
+
+Comida china señorPollito
+usuario: señorPollito
+contraseña: poll0F1Señ
+
+Comida charolas fit
+usuario:charolasFit
+contraseña: c0m1d4F1t
+
+Comida Onigiri
+usuario: onigiriCool
+contraseña: dan13lOn1g1iri

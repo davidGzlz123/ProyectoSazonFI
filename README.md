@@ -22,7 +22,7 @@ Este proyecto tiene como objetivo **agilizar el proceso de compra de alimentos**
 ### 🔧 Backend (Django)
 
 ```bash
-cd backend
+cd SazonFI
 pip install -r requirements.txt
 python manage.py migrate
 python manage.py runserver
@@ -30,7 +30,7 @@ python manage.py runserver
 
 ### 🌐 Frontend (React)
 ```bash
-cd frontend
+cd SazonFI
 npm install
 npm start
 ``` 
